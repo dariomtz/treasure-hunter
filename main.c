@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
         //clear the window
         SDL_RenderClear(rend);
         
-        //draw ceiling
+        //draw top
         for (int j = 0; j<11; j++) {
             destination.x = j*100;
             destination.y = 0;
@@ -97,12 +97,14 @@ int main(int argc, char* argv[]) {
         }
         
         //draw floor
-        for (int j = 0; j<11; j++) {
-            destination.x = j*100;
-            destination.y = 100;
-            destination.w = 100;
-            destination.h = 100;
-            SDL_RenderCopy(rend, tex, &images[29], &destination);
+        for (int k=1; k<=3; k++) {
+            for (int j = 0; j<11; j++) {
+                destination.x = j*100;
+                destination.y = 100*k;
+                destination.w = 100;
+                destination.h = 100;
+                SDL_RenderCopy(rend, tex, &images[29], &destination);
+            }
         }
         
         //draw walls
@@ -130,14 +132,27 @@ int main(int argc, char* argv[]) {
             SDL_RenderCopy(rend, tex, &images[(j%2) ? 89 : 50], &destination);
         }
         
-        //draw walls
+        //draw lower border
         for (int j = 0; j<11; j++) {
             destination.x = j*100;
-            destination.y = 200;
+            destination.y = 300;
             destination.w = 100;
             destination.h = 100;
-            SDL_RenderCopy(rend, tex, &images[29], &destination);
+            SDL_RenderCopy(rend, tex, &images[39], &destination);
         }
+        
+        //refill
+        for (int k = 4; k<9; k++) {
+            for (int j = 0; j<11; j++) {
+                destination.x = j*100;
+                destination.y = k*100;
+                destination.w = 100;
+                destination.h = 100;
+                SDL_RenderCopy(rend, tex, &images[18], &destination);
+            }
+        }
+        
+        
         
         //Send the image drawn to the screen
         SDL_RenderPresent(rend);

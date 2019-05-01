@@ -2,13 +2,13 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by Dar√≠o Mart√≠nez and Miguel Gonz√°lez on 4/2/19.
+//  Created by DarÌo MartÌnez and Miguel Gonz·lez on 4/2/19.
 //
 
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2_image/SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 typedef struct{
     unsigned char floor[50][50];
@@ -21,7 +21,7 @@ void initializeImageRect(struct SDL_Rect arrayRects[]){
     unsigned char ypos[119] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8};
     unsigned char height[119] = {1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 2, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1};
     unsigned char width[119] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 2, 2, 1};
-    
+
     //fill all
     for (int i = 0; i < 119; i++) {
         arrayRects[i].x = xpos[i]*16;
@@ -29,11 +29,62 @@ void initializeImageRect(struct SDL_Rect arrayRects[]){
         arrayRects[i].h = height[i]*16;
         arrayRects[i].w = width[i]*16;
     }
-    
+
+}
+
+MAP create_Map1(MAP map){
+	enum {
+			LIGHT = 29, DARK = 18, EMPTY = 118
+		};
+	map.mapSize = 10;
+
+		//assign values to the floor pieces of the floor pieces
+		for (int i = 0; i < map.mapSize; i++) {
+			for (int j = 0; j < map.mapSize; j++) {
+				switch (i) {
+				case 0:
+					map.floor[i][j] = EMPTY;
+					break;
+				case 1:
+				case 2:
+				case 3:
+					map.floor[i][j] = LIGHT;
+					break;
+				default:
+					map.floor[i][j] = DARK;
+					break;
+				}
+			}
+		}
+
+		//assign values to the walls and not floor pieces
+		for (int i = 0; i < map.mapSize; i++) {
+			for (int j = 0; j < map.mapSize; j++) {
+				switch (i) {
+				case 0:
+					map.walls[i][j] = 6;
+					break;
+				case 1:
+					map.walls[i][j] = (j == 4) ? EMPTY : ((j % 2) ? 88 : 50);
+					break;
+				case 2:
+					map.walls[i][j] = EMPTY;
+					break;
+				case 3:
+					map.walls[i][j] = 39;
+					break;
+				default:
+					map.walls[i][j] = EMPTY;
+					break;
+				}
+			}
+		}
+		return map;
+
 }
 
 int main(int argc, char* argv[]) {
-    
+
     //initilization - do not delete
     //-----------------------------
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0){
@@ -49,17 +100,17 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
-    
+
     Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
     SDL_Renderer * rend = SDL_CreateRenderer(win, -1, render_flags);
-    
+
     if(!rend){
         printf("Renering not successful: %s\n", SDL_GetError());
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
     }
-    
+
     SDL_Surface* surface= IMG_Load("./resources/dungeon_sheet.png");
     if(!surface){
         printf("Image loading not successful: %s\n", SDL_GetError());
@@ -68,7 +119,7 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
-    
+
     SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surface);
     SDL_FreeSurface(surface);
     if(!tex){
@@ -78,71 +129,31 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
-    
+
     //initilization - do not delete
     //-----------------------------
-    
+
     unsigned char scale = 100;
-    
+
     enum {LIGHT = 29, DARK = 18, EMPTY = 118};
-    
+
     struct SDL_Rect images[119];
     initializeImageRect(images);
-    
+
     char doors[] = {91, 92, 93, 94, 93, 92};
-    
+
     struct SDL_Rect destination;
-    
+
     //creation of Map1
     MAP mapa1;
-    mapa1.mapSize = 10;
-    
-    //assign values to the floor pieces of the floor pieces
-    for (int i = 0; i < mapa1.mapSize; i++) {
-        for (int j = 0; j < mapa1.mapSize; j++) {
-            switch (i) {
-                case 0:
-                    mapa1.floor[i][j]= EMPTY;
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    mapa1.floor[i][j]= LIGHT;
-                    break;
-                default:
-                    mapa1.floor[i][j]= DARK;
-                    break;
-            }
-        }
-    }
-    
-    //assign values to the walls and not floor pieces
-    for (int i = 0; i < mapa1.mapSize; i++) {
-        for (int j = 0; j < mapa1.mapSize; j++) {
-            switch (i) {
-                case 0:
-                    mapa1.walls[i][j]= 6;
-                    break;
-                case 1:
-                    mapa1.walls[i][j]= (j==4) ? EMPTY : ((j%2) ? 88 : 50);
-                    break;
-                case 2:
-                    mapa1.walls[i][j]= EMPTY;
-                    break;
-                case 3:
-                    mapa1.walls[i][j]= 39;
-                    break;
-                default:
-                    mapa1.walls[i][j]= EMPTY;
-                    break;
-            }
-        }
-    }
-    
+	mapa1 = create_Map1(mapa1);
+
+
+
     for (int i = 0; i < 50; i++) {
         //clear the window
         SDL_RenderClear(rend);
-        
+
         //draw floor of map 1
         for (int j=0; j<mapa1.mapSize; j++) {
             for (int k = 0; k<mapa1.mapSize; k++) {
@@ -153,7 +164,7 @@ int main(int argc, char* argv[]) {
                 SDL_RenderCopy(rend, tex, &images[mapa1.floor[j][k]], &destination);
             }
         }
-        
+
         //draw whatever is not a floor of map 1
         for (int j=0; j<mapa1.mapSize; j++) {
             for (int k = 0; k<mapa1.mapSize; k++) {
@@ -166,7 +177,7 @@ int main(int argc, char* argv[]) {
                 SDL_RenderCopy(rend, tex, &images[mapa1.walls[j][k]], &destination);
             }
         }
-        
+
 
         //draw door
         destination.x = 4*100;
@@ -174,20 +185,20 @@ int main(int argc, char* argv[]) {
         destination.w = 100;
         destination.h = 100;
         SDL_RenderCopy(rend, tex, &images[doors[i%6]], &destination);
-        
+
         //Send the image drawn to the screen
         SDL_RenderPresent(rend);
-        
+
         //wait
         SDL_Delay(500);
     }
-    
+
     SDL_DestroyTexture(tex);
-    
+
     SDL_DestroyRenderer(rend);
-    
+
     SDL_DestroyWindow(win);
-    
+
     SDL_Quit();
     return 0;
 }

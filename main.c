@@ -68,31 +68,11 @@ unsigned char box_contact(struct SDL_Rect rect1, struct SDL_Rect rect2) {
 	}
 	return (contact == 2);
 }
+struct PLAYER ChangePlayer(struct PLAYER user, char time, MAP map,
+		short int windowWidth, short int windowHeight, unsigned char Scale) {
 
-struct PLAYER ChangePlayer(struct PLAYER user, char time, MAP map, short int windowWidth, short int windowHeight) {
-	
 	unsigned char x_move = 1, y_move = 1;
-	//change the position of the player based on direction.
-	switch (user.x_dir){
-		case 1:
-			user.x += user.speed;
-			break;
-		case -1:
-			user.x -= user.speed;
-			break;
-	}
-	
-	switch (user.y_dir){
-		case 1:
-			user.y += user.speed;
-			break;
-		case -1:
-			user.y -= user.speed;
-			break;
-	}
-	
-	
-	
+
 	//detect if the position is outside the windows
 	if (user.x <= 0)
 		user.x = 0;
@@ -102,8 +82,48 @@ struct PLAYER ChangePlayer(struct PLAYER user, char time, MAP map, short int win
 		user.y = 0;
 	else if (user.h + user.y >= windowHeight)
 		user.y = windowHeight - user.h;
+
+	struct SDL_Rect Rectx, Recty, RectWall;
+
+	Rectx.x = (user.x + user.x_dir * user.speed) + 16;
+	Rectx.y = user.y + Scale / 2;
+	Rectx.h = Scale / 2;
+	Rectx.w = 1 * Scale - 32;
+
+	Recty.x = user.x + 16;
+	Recty.y = (user.y + user.y_dir * user.speed) + Scale / 2;
+	Recty.h = Scale / 2;
+	Recty.w = 1 * Scale - 32;
+
+	//detect contact with walls
+	for (int x = 0; x < map.mapSize; x++) {
+		for (int y = 0; y < map.mapSize; y++) {
+			if (map.walls[y][x] != 118) {
+
+				RectWall.x = x * Scale;
+				RectWall.y = y * Scale;
+				RectWall.w = Scale;
+				RectWall.h = Scale;
+
+				if (box_contact(RectWall, Rectx))
+					x_move = 0;
+
+				if (box_contact(Recty, RectWall))
+					y_move = 0;
+			}
+		}
+	}
+
+	//move the position of the player
+	if (x_move)
+		user.x += user.x_dir * user.speed;
+	if (y_move)
+		user.y += user.y_dir * user.speed;
+
 	return user;
 }
+
+
 
 
 void drawMap(MAP map, SDL_Rect images[], unsigned char scale, SDL_Renderer * rend, SDL_Texture * tex, SDL_Rect destination){
@@ -338,7 +358,7 @@ int main(int argc, char* argv[]) {
 		
 		//matemachicken stuff
 		frames++;
-		player = ChangePlayer(player, frames, map1, windowWidth, windowHeight);
+		player = ChangePlayer(player, frames, map1, windowWidth, windowHeight, scale);
 		
 		//clear the window
 		SDL_RenderClear(rend);

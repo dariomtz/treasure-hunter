@@ -58,6 +58,65 @@ void drawMap(MAP map, SDL_Rect images[], unsigned char scale, SDL_Renderer * ren
     }
 }
 
+MAP initialize_Map1(MAP map) {
+	enum {
+		LIGHT = 29, DARK = 18, EMPTY = 118
+	};
+	map.mapSize = 10;
+
+	//assign values to the floor pieces of the floor pieces
+	for (int i = 0; i < map.mapSize; i++) {
+		for (int j = 0; j < map.mapSize; j++) {
+			switch (i) {
+			case 0:
+				map.floor[i][j] = EMPTY;
+				break;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				map.floor[i][j] = LIGHT;
+				break;
+			default:
+				map.floor[i][j] = DARK;
+				break;
+			}
+		}
+	}
+
+	//assign values to the walls and not floor pieces
+	for (int i = 0; i < map.mapSize; i++) {
+		for (int j = 0; j < map.mapSize; j++) {
+			switch (i) {
+			case 0:
+				map.walls[i][j] = 6;
+				break;
+			case 1:
+				map.walls[i][j] = (j == 4) ? EMPTY : ((j % 2) ? 88 : 50);
+				break;
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+				map.walls[i][j] = EMPTY;
+				break;
+			case 6:
+				map.walls[i][j] = 39;
+				break;
+			default:
+				map.walls[i][j] = EMPTY;
+				break;
+			}
+		}
+	}
+	map.walls[4][4] = 50;
+	return map;
+
+}
+
+
 int main(int argc, char* argv[]) {
     
     //initilization - do not delete
@@ -120,56 +179,14 @@ int main(int argc, char* argv[]) {
     struct SDL_Rect destination;
     
     //creation of Map1
-    MAP mapa1;
-    mapa1.mapSize = 10;
-    
-    //assign values to the floor pieces of the floor pieces
-    for (int i = 0; i < mapa1.mapSize; i++) {
-        for (int j = 0; j < mapa1.mapSize; j++) {
-            switch (i) {
-                case 0:
-                    mapa1.floor[i][j]= EMPTY;
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    mapa1.floor[i][j]= LIGHT;
-                    break;
-                default:
-                    mapa1.floor[i][j]= DARK;
-                    break;
-            }
-        }
-    }
-    
-    //assign values to the walls and not floor pieces
-    for (int i = 0; i < mapa1.mapSize; i++) {
-        for (int j = 0; j < mapa1.mapSize; j++) {
-            switch (i) {
-                case 0:
-                    mapa1.walls[i][j]= 6;
-                    break;
-                case 1:
-                    mapa1.walls[i][j]= (j==4) ? EMPTY : ((j%2) ? 88 : 50);
-                    break;
-                case 2:
-                    mapa1.walls[i][j]= EMPTY;
-                    break;
-                case 3:
-                    mapa1.walls[i][j]= 39;
-                    break;
-                default:
-                    mapa1.walls[i][j]= EMPTY;
-                    break;
-            }
-        }
-    }
+    MAP map1;
+    map1 = initialize_Map1(map1);
     
     for (int i = 0; i < 50; i++) {
         //clear the window
         SDL_RenderClear(rend);
         
-        drawMap(mapa1, images, scale, rend, tex, destination);
+        drawMap(map1, images, scale, rend, tex, destination);
 
         //draw door
         destination.x = 4*100;

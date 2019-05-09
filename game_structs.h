@@ -34,6 +34,22 @@ typedef struct{
     int mapSize;
 } MAP;
 
+//box
+typedef struct{
+	unsigned char movable: 1;
+	int x;
+	int y;
+	unsigned char w;
+	unsigned char h;
+	unsigned char image;
+
+}BOX;
+
+typedef struct{
+	BOX box;
+	PLAYER user;
+}BOX_PLAYER;
+
 //All the levels
 //menu
 

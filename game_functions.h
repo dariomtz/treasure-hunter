@@ -33,6 +33,17 @@ PLAYER InitializePlayer(PLAYER player) {
     return player;
 }
 
+BOX initialize_Box(BOX box){
+	box.x = 8*SCALE;
+	box.y = 4*SCALE;
+	box.w = SCALE;
+	box.h = SCALE;
+	box.image = 147;
+	box.movable = 1;
+	return box;
+}
+
+
 MAP initialize_Map1(MAP map) {
     map.mapSize = 10;
     //assign values to the floor pieces of the floor pieces
@@ -102,6 +113,8 @@ MAP initialize_Map1(MAP map) {
 //Game functions
 //----------------------------------------------------
 
+
+//Draw ductions
 void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, SDL_Rect destination){
     
     //draw floor of map 1
@@ -128,6 +141,100 @@ void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
         }
     }
 }
+void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
+		SDL_Rect destination, PLAYER user, int mapSize) {
+
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = box.x;
+	else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = box.x - mapSize * SCALE + WINDOW_WIDTH;
+	else
+		destination.x = box.x - (user.x - WINDOW_WIDTH / 2);
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = box.y;
+	else if (user.y > mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = box.y - mapSize * SCALE + WINDOW_HEIGHT;
+	else
+		destination.y = box.y - (user.y - WINDOW_HEIGHT / 2);
+	destination.h = box.h;
+	destination.w = box.w;
+
+	SDL_RenderCopy(rend, tex, &images[box.image], &destination);
+}
+
+void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
+		SDL_Texture * tex, SDL_Rect destination, MAP map) {
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = user.x;
+	else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = user.x - map.mapSize * SCALE + WINDOW_WIDTH ;
+	else
+		destination.x = WINDOW_WIDTH / 2;
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = user.y;
+	else if (user.y > map.mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = user.y - map.mapSize * SCALE + WINDOW_HEIGHT ;
+	else
+		destination.y = WINDOW_HEIGHT / 2;
+	destination.h = user.h;
+			destination.w = user.w;
+	SDL_RenderCopy(rend, tex, &images[207], &destination);
+
+}
+
+unsigned char player_box_contact(PLAYER user, BOX box, SDL_Rect shapes[]) {
+	SDL_Rect hit_box, user_box;
+	unsigned char contact = 0;
+	hit_box = shapes[box.image];
+	hit_box.x += box.x;
+	hit_box.y += box.y;
+	user_box.x = user.x- user.x_dir*user.speed;
+	user_box.y = user.y + user.h * 15 / 16;
+	user_box.w = user.w;
+	user_box.h = user.h / 16;
+	if(box_contact(user_box, hit_box))
+	contact ++;
+	user_box.x = user.x;
+	user_box.y = user.y + (user.h * 15 / 16)-user.y_dir*user.speed;
+	if(box_contact(user_box, hit_box))
+		contact += 3;
+	return contact;
+
+}
+
+BOX_PLAYER updateBox(BOX_PLAYER box_player, MAP map, SDL_Rect shapes[]){
+	unsigned char contact = 0;
+	unsigned char move = 1;
+	int x, y;
+	contact = player_box_contact(box_player.user, box_player.box, shapes);
+	if (contact) {
+		if (box_player.box.movable) {
+			x = (box_player.box.x+10 * box_player.user.x_dir* box_player.user.speed)/SCALE;
+			y = (box_player.box.y+10 * box_player.user.y_dir* box_player.user.speed)/SCALE;
+			if(map.walls[y][x] != EMPTY){
+				move = 0;
+			}
+
+
+		} else
+			move = 0;
+
+
+		if (move) {
+			box_player.box.x += 10 * box_player.user.x_dir
+					* box_player.user.speed;
+			box_player.box.y += 10 * box_player.user.y_dir
+					* box_player.user.speed;
+
+		} else {
+			box_player.user.x -= box_player.user.x_dir * box_player.user.speed;
+			box_player.user.y -= box_player.user.y_dir * box_player.user.speed;
+		}
+	}
+
+	return (box_player);
+}
+
 
 unsigned char box_contact(struct SDL_Rect rect1, struct SDL_Rect rect2) {
     unsigned char contact = 0;

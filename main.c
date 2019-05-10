@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2/SDL_image.h>
+#include <SDL2_image/SDL_image.h>
 #include "game_structs.h"
 #include "game_functions.h"
 
 int main(int argc, char* argv[]) {
-
+	
 	//initilization - do not delete
 	//-----------------------------
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0){
@@ -28,17 +28,17 @@ int main(int argc, char* argv[]) {
 		SDL_Quit();
 		return 1;
 	}
-
+	
 	Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	SDL_Renderer * rend = SDL_CreateRenderer(win, -1, render_flags);
-
+	
 	if(!rend){
 		printf("Renering not successful: %s\n", SDL_GetError());
 		SDL_DestroyWindow(win);
 		SDL_Quit();
 		return 1;
 	}
-
+	
 	SDL_Surface* surface= IMG_Load("./resources/dungeon_sheet.png");
 	if(!surface){
 		printf("Image loading not successful: %s\n", SDL_GetError());
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 		SDL_Quit();
 		return 1;
 	}
-
+	
 	SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surface);
 	SDL_FreeSurface(surface);
 	if(!tex){
@@ -59,45 +59,39 @@ int main(int argc, char* argv[]) {
 	}
 	//initilization - do not delete
 	//-----------------------------
-
+	
 	SDL_Rect images[240];
 	initializeImageRect(images);
-
+	
 	SDL_Rect shapes[240];
 	initializeShapesRect(shapes);
-
+	
 	PLAYER player;
-	player = Initialize_Player(player);
-
-	BOX box;
-	box = initialize_Box(box);
-
-	BOX_PLAYER box_player;
-
+	player = InitializePlayer(player);
+	
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
-	unsigned char contact = 0;
-
-	//char doors[] = {47, 57, 67, 77, 67, 52};
-
+	
+	char doors[] = {47, 57, 67, 77, 67, 52};
+	
 	SDL_Rect destination;
-
+	
 	char close_requested = 0;
 	SDL_Event event;
-
+	
 	//creation of Map1
 	MAP map1;
 	map1 = initialize_Map1(map1);
-
+	
 	while (!close_requested) {
-
+		
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
 					//close the game
 				case SDL_QUIT:
 					close_requested = 1;
 					break;
-
+					
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.scancode) {
 						case SDL_SCANCODE_W:
@@ -125,7 +119,7 @@ int main(int argc, char* argv[]) {
 							break;
 					}
 					break;
-
+					
 				case SDL_KEYUP:
 					switch (event.key.keysym.scancode) {
 						case SDL_SCANCODE_W:
@@ -156,43 +150,39 @@ int main(int argc, char* argv[]) {
 					break;
 			}
 		}
-
-		//clear
 		//clear the window
-				SDL_RenderClear(rend);
-
+		SDL_RenderClear(rend);
+		
 		//matemachicken stuff
 		frames++;
-		contact = player_box_contact(player, box, shapes);
-		box_player.box = box;
-
-		//updates
-		player = updatePlayer(player, map1, shapes);
-
-		box_player.user = player;
-		box_player = updateBox(box_player, map1, shapes);
-		player = box_player.user;
-		box = box_player.box;
-
-		//Draw map
-		drawMap(map1, images, rend, tex, destination, player);
-
+		player = updatePlayer(player, map1, shapes, rend);
+		
+		drawMap(map1, images, rend, tex, destination);
+		
+		//draw door
+		destination.x = 4*100;
+		destination.y = 100;
+		destination.w = 100;
+		destination.h = 100;
+		SDL_RenderCopy(rend, tex, &images[doors[0]], &destination);
+		
 		//draw player
-		drawPlayer(player, images, rend, tex, destination, map1);
-
-		//draw box
-		drawBox (box, images, rend, tex, destination, player, map1.mapSize);
-
+		destination.x = player.x;
+		destination.y = player.y;
+		destination.h = player.h;
+		destination.w = player.w;
+		SDL_RenderCopy(rend, tex, &images[217], &destination);
+		
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);
-
+		
 		if (frames == 60)
 			frames = 0;
-
+		
 		//wait
 		SDL_Delay(ticks_delay);
 	}
-
+	
 	SDL_DestroyTexture(tex);
 	SDL_DestroyRenderer(rend);
 	SDL_DestroyWindow(win);

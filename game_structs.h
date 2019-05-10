@@ -25,6 +25,7 @@ typedef struct{
     unsigned char speed;
     char x_dir;
     char y_dir;
+    unsigned char image;
 }PLAYER;
 
 //maps
@@ -36,19 +37,14 @@ typedef struct{
 
 //box
 typedef struct{
-	unsigned char movable: 1;
-	int x;
-	int y;
-	unsigned char w;
-	unsigned char h;
-	unsigned char image;
-
+    unsigned char movable: 1;
+    int x;
+    int y;
+    unsigned char w;
+    unsigned char h;
+    unsigned char image;
+    
 }BOX;
-
-typedef struct{
-	BOX box;
-	PLAYER user;
-}BOX_PLAYER;
 
 //All the levels
 //menu

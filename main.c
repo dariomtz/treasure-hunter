@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2/SDL_image.h>
+#include <SDL2_image/SDL_image.h>
 #include "game_structs.h"
 #include "game_functions.h"
 
@@ -67,13 +67,11 @@ int main(int argc, char* argv[]) {
 	initializeShapesRect(shapes);
 	
 	PLAYER player;
-	player = InitializePlayer(player);
+	initializePlayer(&player);
 	
 	BOX box;
 	box = initialize_Box(box);
-
-	BOX_PLAYER box_player;
-
+	
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
 	
@@ -160,25 +158,20 @@ int main(int argc, char* argv[]) {
 		
 		//matemachicken stuff
 		frames++;
-		player = updatePlayer(player, map1, shapes, rend);
-
-		box_player.box = box;
-		box_player.user = player;
-		box_player = updateBox(box_player, map1, shapes);
-		player = box_player.user;
-		box = box_player.box;
-
-
+		player = updatePlayer(player, map1, shapes);
+		
+		updateBox(&box, &player, map1, shapes);
+		
 		//Draw stuff
-
+		
 		drawMap(map1, images, rend, tex, destination, player);
-
+		
 		//draw player
 		drawPlayer(player, images, rend, tex, destination, map1);
-
+		
 		//draw box
 		drawBox(box, images, rend, tex, destination, player, map1.mapSize);
-
+		
 		//draw door
 		destination.x = 4*100;
 		destination.y = 100;
@@ -203,3 +196,4 @@ int main(int argc, char* argv[]) {
 	SDL_Quit();
 	return 0;
 }
+

@@ -2,7 +2,7 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by Darío Martínez and Miguel González on 4/2/19.
+//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
 //
 
 #ifndef game_structs_h
@@ -33,6 +33,22 @@ typedef struct{
     unsigned char walls[50][50];
     int mapSize;
 } MAP;
+
+//box
+typedef struct{
+	unsigned char movable: 1;
+	int x;
+	int y;
+	unsigned char w;
+	unsigned char h;
+	unsigned char image;
+
+}BOX;
+
+typedef struct{
+	BOX box;
+	PLAYER user;
+}BOX_PLAYER;
 
 //All the levels
 //menu

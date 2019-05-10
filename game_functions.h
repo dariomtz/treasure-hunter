@@ -2,7 +2,7 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by Darío Martínez and Miguel González on 4/2/19.
+//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
 //
 
 #ifndef game_functions_h
@@ -520,35 +520,121 @@ MAP initialize_Map1(MAP map) {
     return map;
 }
 
+BOX initialize_Box(BOX box){
+	box.x = 8*SCALE;
+	box.y = 4*SCALE;
+	box.w = SCALE;
+	box.h = SCALE;
+	box.image = 147;
+	box.movable = 1;
+	return box;
+}
+
+
+//Draw functions
+
+void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, SDL_Rect destination,PLAYER user){
+
+	unsigned char x_initial, x_final, y_initial, y_final, x_module, y_module;
+	x_module = 0;
+	y_module = 0;
+	if (user.x < WINDOW_WIDTH / 2) {
+		x_initial = 0;
+		x_final = WINDOW_WIDTH / SCALE;
+	} else if(user.x > map.mapSize*SCALE-WINDOW_WIDTH/2){
+		x_initial = map.mapSize-WINDOW_WIDTH/SCALE;
+		x_final = map.mapSize;
+	}else{
+		x_initial = (user.x - WINDOW_WIDTH / 2) / SCALE;
+		x_final = (user.x + WINDOW_WIDTH / 2) / SCALE+1;
+		x_module = user.x%SCALE;
+	}
+
+	if (user.y < WINDOW_HEIGHT / 2) {
+		y_initial = 0;
+		y_final = WINDOW_HEIGHT / SCALE;
+	} else if(user.y > map.mapSize*SCALE-WINDOW_HEIGHT/2){
+		y_initial = map.mapSize-WINDOW_HEIGHT/SCALE;
+		y_final = map.mapSize;
+
+	}else{
+		y_initial = (user.y - WINDOW_HEIGHT / 2) / SCALE;
+		y_final = (user.y + WINDOW_HEIGHT / 2) / SCALE+1;
+		y_module = user.y%SCALE;
+	}
+
+	//draw floor of map 1
+	for (int j=y_initial; j<y_final; j++) {
+		for (int k = x_initial; k<x_final; k++) {
+			destination.x = (k-x_initial)*SCALE-x_module;
+			destination.y = (j-y_initial)*SCALE-y_module;
+			destination.w = images[map.floor[j][k]].w*SCALE/16;
+			destination.h = images[map.floor[j][k]].h*SCALE/16;
+			SDL_RenderCopy(rend, tex, &images[map.floor[j][k]], &destination);
+		}
+	}
+
+	//draw whatever is not a floor of map 1
+	for (int j=y_initial; j<y_final; j++) {
+		for (int k = x_initial; k<x_final; k++)  {
+			destination.x = (k-x_initial)*SCALE-x_module;
+			destination.y = (j-y_initial)*SCALE-y_module;
+			//if you are going to use the height and width of the image as a reference...
+			//  it is necesary to divide it by 16 (which is the number of pixels of every unit in the image
+			destination.w = images[map.walls[j][k]].w*SCALE/16;
+			destination.h = images[map.walls[j][k]].h*SCALE/16;
+			SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
+		}
+	}
+}
+
+void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
+		SDL_Texture * tex, SDL_Rect destination, MAP map) {
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = user.x;
+	else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = user.x - map.mapSize * SCALE + WINDOW_WIDTH ;
+	else
+		destination.x = WINDOW_WIDTH / 2;
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = user.y;
+	else if (user.y > map.mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = user.y - map.mapSize * SCALE + WINDOW_HEIGHT ;
+	else
+		destination.y = WINDOW_HEIGHT / 2;
+	destination.h = user.h;
+			destination.w = user.w;
+	SDL_RenderCopy(rend, tex, &images[207], &destination);
+
+}
+
+void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
+		SDL_Rect destination, PLAYER user, int mapSize) {
+
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = box.x;
+	else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = box.x - mapSize * SCALE + WINDOW_WIDTH;
+	else
+		destination.x = box.x - (user.x - WINDOW_WIDTH / 2);
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = box.y;
+	else if (user.y > mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = box.y - mapSize * SCALE + WINDOW_HEIGHT;
+	else
+		destination.y = box.y - (user.y - WINDOW_HEIGHT / 2);
+	destination.h = box.h;
+	destination.w = box.w;
+
+	SDL_RenderCopy(rend, tex, &images[box.image], &destination);
+}
+
+
+
 //Game functions
 //----------------------------------------------------
 
-void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, SDL_Rect destination){
-    
-    //draw floor of map 1
-    for (int j=0; j<map.mapSize; j++) {
-        for (int k = 0; k<map.mapSize; k++) {
-            destination.x = k*SCALE;
-            destination.y = j*SCALE;
-            destination.w = images[map.floor[j][k]].w*SCALE/16;
-            destination.h = images[map.floor[j][k]].h*SCALE/16;
-            SDL_RenderCopy(rend, tex, &images[map.floor[j][k]], &destination);
-        }
-    }
-    
-    //draw whatever is not a floor of map 1
-    for (int j=0; j<map.mapSize; j++) {
-        for (int k = 0; k<map.mapSize; k++) {
-            destination.x = k*SCALE;
-            destination.y = j*SCALE;
-            //if you are going to use the height and width of the image as a reference...
-            //  it is necesary to divide it by 16 (which is the number of pixels of every unit in the image
-            destination.w = images[map.walls[j][k]].w*SCALE/16;
-            destination.h = images[map.walls[j][k]].h*SCALE/16;
-            SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
-        }
-    }
-}
+
 
 unsigned char box_contact(struct SDL_Rect rect1, struct SDL_Rect rect2) {
     unsigned char contact = 0;
@@ -567,6 +653,26 @@ unsigned char box_contact(struct SDL_Rect rect1, struct SDL_Rect rect2) {
             contact++;
     }
     return (contact == 2);
+}
+
+unsigned char player_box_contact(PLAYER user, BOX box, SDL_Rect shapes[]) {
+	SDL_Rect hit_box, user_box;
+	unsigned char contact = 0;
+	hit_box = shapes[box.image];
+	hit_box.x += box.x;
+	hit_box.y += box.y;
+	user_box.x = user.x- user.x_dir*user.speed;
+	user_box.y = user.y + user.h * 15 / 16;
+	user_box.w = user.w;
+	user_box.h = user.h / 16;
+	if(box_contact(user_box, hit_box))
+	contact ++;
+	user_box.x = user.x;
+	user_box.y = user.y + (user.h * 15 / 16)-user.y_dir*user.speed;
+	if(box_contact(user_box, hit_box))
+		contact += 3;
+	return contact;
+
 }
 
 char isPointInsideRect(int x, int y, SDL_Rect rect){
@@ -694,7 +800,38 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
     return user;
 }
 
+BOX_PLAYER updateBox(BOX_PLAYER box_player, MAP map, SDL_Rect shapes[]){
+	unsigned char contact = 0;
+	unsigned char move = 1;
+	int x, y;
+	contact = player_box_contact(box_player.user, box_player.box, shapes);
+	if (contact) {
+		if (box_player.box.movable) {
+			x = (box_player.box.x+10 * box_player.user.x_dir* box_player.user.speed)/SCALE;
+			y = (box_player.box.y+10 * box_player.user.y_dir* box_player.user.speed)/SCALE;
+			if(map.walls[y][x] != EMPTY){
+				move = 0;
+			}
 
+
+		} else
+			move = 0;
+
+
+		if (move) {
+			box_player.box.x += 10 * box_player.user.x_dir
+					* box_player.user.speed;
+			box_player.box.y += 10 * box_player.user.y_dir
+					* box_player.user.speed;
+
+		} else {
+			box_player.user.x -= box_player.user.x_dir * box_player.user.speed;
+			box_player.user.y -= box_player.user.y_dir * box_player.user.speed;
+		}
+	}
+
+	return (box_player);
+}
 
 
 

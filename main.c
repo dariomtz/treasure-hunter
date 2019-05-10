@@ -2,12 +2,12 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by Darío Martínez and Miguel González on 4/2/19.
+//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
 //
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2_image/SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include "game_structs.h"
 #include "game_functions.h"
 
@@ -69,6 +69,11 @@ int main(int argc, char* argv[]) {
 	PLAYER player;
 	player = InitializePlayer(player);
 	
+	BOX box;
+	box = initialize_Box(box);
+
+	BOX_PLAYER box_player;
+
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
 	
@@ -156,22 +161,31 @@ int main(int argc, char* argv[]) {
 		//matemachicken stuff
 		frames++;
 		player = updatePlayer(player, map1, shapes, rend);
-		
-		drawMap(map1, images, rend, tex, destination);
-		
+
+		box_player.box = box;
+		box_player.user = player;
+		box_player = updateBox(box_player, map1, shapes);
+		player = box_player.user;
+		box = box_player.box;
+
+
+		//Draw stuff
+
+		drawMap(map1, images, rend, tex, destination, player);
+
+		//draw player
+		drawPlayer(player, images, rend, tex, destination, map1);
+
+		//draw box
+		drawBox(box, images, rend, tex, destination, player, map1.mapSize);
+
 		//draw door
 		destination.x = 4*100;
 		destination.y = 100;
 		destination.w = 100;
 		destination.h = 100;
-		SDL_RenderCopy(rend, tex, &images[doors[0]], &destination);
+		//SDL_RenderCopy(rend, tex, &images[doors[0]], &destination);
 		
-		//draw player
-		destination.x = player.x;
-		destination.y = player.y;
-		destination.h = player.h;
-		destination.w = player.w;
-		SDL_RenderCopy(rend, tex, &images[217], &destination);
 		
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);

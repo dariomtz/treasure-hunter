@@ -72,6 +72,9 @@ int main(int argc, char* argv[]) {
 	BOX box;
 	box = initialize_Box(box);
 	
+	ANIMATION animations[20];
+	initializeAnimations(animations, 20);
+	
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
 	
@@ -120,6 +123,9 @@ int main(int argc, char* argv[]) {
 						case SDL_SCANCODE_ESCAPE:
 							close_requested = 1;
 							break;
+						case SDL_SCANCODE_SPACE:
+							playerInteraction(player, map1, animations);
+							break;
 					}
 					break;
 					
@@ -158,9 +164,10 @@ int main(int argc, char* argv[]) {
 		
 		//matemachicken stuff
 		frames++;
-		player = updatePlayer(player, map1, shapes);
+		player = updatePlayer(player, map1, shapes, rend);
 		
 		updateBox(&box, &player, map1, shapes);
+		updateAnimations(animations, 20, &map1);
 		
 		//Draw stuff
 		

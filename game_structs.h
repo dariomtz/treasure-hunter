@@ -30,7 +30,6 @@ typedef struct{
 
 //maps
 typedef struct{
-    unsigned char floor[50][50];
     unsigned char walls[50][50];
     int mapSize;
 } MAP;
@@ -43,8 +42,17 @@ typedef struct{
     unsigned char w;
     unsigned char h;
     unsigned char image;
-    
 }BOX;
+
+//animation
+typedef struct{
+    unsigned char current;
+    unsigned char active;
+    unsigned char length;
+    unsigned char x;
+    unsigned char y;
+    unsigned char images[15];
+} ANIMATION;
 
 //All the levels
 //menu

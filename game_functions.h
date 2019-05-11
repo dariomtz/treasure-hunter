@@ -44,9 +44,9 @@ void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
         for (int k = x_initial; k<x_final; k++) {
             destination.x = (k-x_initial)*SCALE-x_module;
             destination.y = (j-y_initial)*SCALE-y_module;
-            destination.w = images[map.floor[j][k]].w*SCALE/16;
-            destination.h = images[map.floor[j][k]].h*SCALE/16;
-            SDL_RenderCopy(rend, tex, &images[map.floor[j][k]], &destination);
+			destination.w = SCALE;
+			destination.h = SCALE;
+            SDL_RenderCopy(rend, tex, &images[LIGHT], &destination);
         }
     }
     
@@ -144,7 +144,73 @@ unsigned char isLineInsideRect(int y, int x1, int x2, SDL_Rect rect){
 //-------------------------------------------------------------------------------------------
 //update functions
 
-PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[]) {
+void playerInteraction(PLAYER player, MAP map, ANIMATION animations[]){
+	unsigned char x = (player.x + player.w/2)/SCALE, y = (player.y + player.h/2)/SCALE;
+	unsigned char image = map.walls[y][x];
+
+	int i = 0;
+	while (animations[i].active == 1) {
+		i++;
+	}
+
+	switch (image) {
+		case 47:
+			animations[i].active = 1;
+			animations[i].current = 0;
+			animations[i].length = 4;
+			animations[i].x = x;
+			animations[i].y = y;
+			for (int j = 0; j < 4; j++) {
+				animations[i].images[j] = 47 + j*10;
+			}
+			animations[i].images[4] = '\0';
+			//printf("%s", animations[i].images);
+			break;
+		case 5:
+			animations[i].active = 1;
+			animations[i].current = 0;
+			animations[i].length = 7;
+			animations[i].x = x;
+			animations[i].y = y;
+			for (int j = 0; j < 7; j++) {
+				animations[i].images[j] = 5 + j*10;
+			}
+			animations[i].images[7] = '\0';
+			//printf("%s", animations[i].images);
+			break;
+		case 65:
+			animations[i].active = 1;
+			animations[i].current = 0;
+			animations[i].length = 7;
+			animations[i].x = x;
+			animations[i].y = y;
+			for (int j = 0; j < 7; j++) {
+				animations[i].images[j] = 65 - j*10;
+			}
+			animations[i].images[7] = '\0';
+			//printf("%s", animations[i].images);
+			break;
+
+		default:
+			printf("\nNo action to be done");
+			break;
+	}
+
+}
+
+void updateAnimations(ANIMATION animations[], int num, MAP * map){
+	for (int i = 0; i < num; i++) {
+		if (animations[i].active){
+			animations[i].current++;
+			map -> walls[animations[i].y][animations[i].x] = animations[i].images[animations[i].current];
+			if (animations[i].current == animations[i].length-1) {
+				animations[i].active = 0;
+			}
+		}
+	}
+}
+
+PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend) {
     int x1, x2, x3, x4, y1, y2, y3;
     x1 = user.x - user.w;
     x2 = user.x;
@@ -180,6 +246,11 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[]) {
             rect[i].y += y/SCALE * SCALE;
         }
     }
+	
+	SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+	SDL_RenderDrawRects(rend, rect, 10);
+	
+	SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
     
     //change the position of the player based on direction.
     switch (user.x_dir){
@@ -315,29 +386,26 @@ void initializeImageRect(SDL_Rect arrayRects[]){
         arrayRects[i].h = 16;
         arrayRects[i].w = 16;
     }
+	
+	for (int i=197; i<240; i+=10) {
+		arrayRects[i].x +=2;
+		arrayRects[i].w -=4;
+	}
+}
+
+void initializeAnimations(ANIMATION animations[], int num){
+	for (int i = 0; i < num; i++) {
+		animations[i].active = 0;
+		animations[i].current = 0;
+		animations[i].length = 0;
+		animations[i].x = 0;
+		animations[i].y = 0;
+		animations[i].images[0] = '\0';
+	}
 }
 
 MAP initialize_Map1(MAP map) {
-    map.mapSize = 10;
-    //assign values to the floor pieces of the floor pieces
-    for (int i = 0; i < map.mapSize; i++) {
-        for (int j = 0; j < map.mapSize; j++) {
-            switch (i) {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    map.floor[i][j] = LIGHT;
-                    break;
-                default:
-                    map.floor[i][j] = EMPTY;
-                    break;
-            }
-        }
-    }
-    
+    map.mapSize = 20;
     //assign values to the walls and not floor pieces
     for (int i = 0; i < map.mapSize; i++) {
         for (int j = 0; j < map.mapSize; j++) {
@@ -351,13 +419,11 @@ MAP initialize_Map1(MAP map) {
                             map.walls[i][j] = 51;
                             break;
                         case 4:
-                            map.walls[i][j] = EMPTY;
+                            map.walls[i][j] = 47;
                             break;
-                        case 9:
-                            map.walls[i][j] = 71;
                             break;
                         default:
-                            map.walls[i][j] = (j % 2) ? 17 : 54;
+							map.walls[i][j] = (j == map.mapSize-1) ? 71: (j % 2) ? 17 : 54;
                             break;
                     }
                     break;
@@ -379,7 +445,7 @@ MAP initialize_Map1(MAP map) {
             }
         }
     }
-    //map.walls[4][4] = 69;
+    map.walls[4][15] = 5;
     return map;
 }
 

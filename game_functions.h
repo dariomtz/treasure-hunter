@@ -9,8 +9,8 @@
 #define game_functions_h
 
 //Draw functions
-void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, SDL_Rect destination,PLAYER user){
-    
+void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,PLAYER user){
+	SDL_Rect destination;
     unsigned char x_initial, x_final, y_initial, y_final, x_module, y_module;
     x_module = 0;
     y_module = 0;
@@ -65,7 +65,8 @@ void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
 }
 
 void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
-                SDL_Texture * tex, SDL_Rect destination, MAP map) {
+                SDL_Texture * tex, MAP map) {
+	SDL_Rect destination;
     if (user.x < WINDOW_WIDTH / 2)
         destination.x = user.x;
     else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
@@ -83,9 +84,8 @@ void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
     SDL_RenderCopy(rend, tex, &images[user.image], &destination);
 }
 
-void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
-             SDL_Rect destination, PLAYER user, int mapSize) {
-    
+void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, int mapSize) {
+	SDL_Rect destination;
     if (user.x < WINDOW_WIDTH / 2)
         destination.x = box.x;
     else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
@@ -333,11 +333,13 @@ void updateBox(BOX * box, PLAYER * player, MAP map, SDL_Rect shapes[]){
     unsigned char move = 1;
     int x, y;
     contact = player_box_contact(player, box, shapes);
+	//printf("\n%d, %d", contact, box -> movable);
     if (contact) {
         if (box -> movable) {
             x = (box -> x+10 * player -> x_dir * player -> speed)/SCALE;
             y = (box -> y+10 * player -> y_dir * player -> speed)/SCALE;
-            if(map.walls[y][x] != EMPTY){
+            if(map.walls[y][x] != EMPTY && map.walls[y][x] != 178 && map.walls[y][x] != 188 &&
+			   map.walls[y][x] != 179 && map.walls[y][x] != 189){
                 move = 0;
             }
         } else {
@@ -369,9 +371,10 @@ void initializePlayer(PLAYER * player) {
     player -> image = 197;
 }
 
-BOX initialize_Box(BOX box){
-    box.x = 6*SCALE;
-    box.y = 4*SCALE;
+BOX newBox(int x, int y){
+	BOX box;
+    box.x = x*SCALE;
+    box.y = y*SCALE;
     box.w = SCALE;
     box.h = SCALE;
     box.image = 147;
@@ -404,48 +407,59 @@ void initializeAnimations(ANIMATION animations[], int num){
 	}
 }
 
-MAP initialize_Map1(MAP map) {
-    map.mapSize = 20;
-    //assign values to the walls and not floor pieces
-    for (int i = 0; i < map.mapSize; i++) {
-        for (int j = 0; j < map.mapSize; j++) {
-            switch (i) {
-                case 0:
-                    map.walls[i][j] = j==0 ? 50 : (j==map.mapSize-1) ? 70 : 60;
-                    break;
-                case 1:
-                    switch (j) {
-                        case 0:
-                            map.walls[i][j] = 51;
-                            break;
-                        case 4:
-                            map.walls[i][j] = 47;
-                            break;
-                            break;
-                        default:
-							map.walls[i][j] = (j == map.mapSize-1) ? 71: (j % 2) ? 17 : 54;
-                            break;
-                    }
-                    break;
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                    map.walls[i][j] = j==0 ? 52 : (j==map.mapSize-1) ? 72 : EMPTY;
-                    break;
-                case 6:
-                    map.walls[i][j] = j==0 ? 53 : (j==map.mapSize-1) ? 73 : 63;
-                    break;
-                case 7:
-                    map.walls[i][j] = DARK;
-                    break;
-                default:
-                    map.walls[i][j] = EMPTY;
-                    break;
-            }
-        }
-    }
-    map.walls[4][15] = 5;
+MAP createMap1(char dir[]){
+	MAP map;
+	map.mapSize = 23;
+	
+	int count = 0;
+	while (dir[count] != '\0') {
+		count ++;
+	}
+	int i=count;
+	while (dir[i] != '/' && dir[i] != '\\') {
+		dir[i] = '\0';
+		i--;
+	}
+	printf("%s\n", dir);
+	
+	char filePath[255];
+	strcpy(filePath, dir);
+	strcat(filePath, "resources/game_menu.csv");
+	FILE * file = fopen(filePath, "r");
+	char line[256];
+	
+	if(file != NULL){
+		int w = 0;
+		while (fgets(line, 256, file)){
+			int piece[23];
+			char num[5];
+			i = 0;
+			int j = 0;
+			int k = 0;
+			while(line[i] != '\n'){
+				if (line[i] == ',' ) {
+					j = - 1;
+				}else{
+					if ((j==0 && i != 0) || line[i+1] == '\n') {
+						piece[k] = atoi(num);
+						k++;
+					}
+					num[j] = line[i];
+					num[j+1] = '\0';
+				}
+				j++;
+				i++;
+			}
+			for (int l = 0; l < 23; l++) {
+				map.walls[w][l] = piece[l];
+			}
+			w++;
+		}
+		
+	}else{
+		printf("ERROR: Unable to read CSV File \"resources/menu.csv\"");
+	}
+	fclose(file);
     return map;
 }
 
@@ -492,8 +506,6 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 			arrayRects[piece[0]].y = (int) (piece[2] / (float) 16 * SCALE);
 			arrayRects[piece[0]].w = (int) (piece[3] / (float) 16 * SCALE);
 			arrayRects[piece[0]].h = (int) (piece[4] / (float) 16 * SCALE);
-			
-			printf("%s", line);
 		}
 		
 	}else{

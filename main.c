@@ -5,6 +5,8 @@
 //  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
 //
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2_image/SDL_image.h>
@@ -70,7 +72,7 @@ int main(int argc, char* argv[]) {
 	initializePlayer(&player);
 	
 	BOX box;
-	box = initialize_Box(box);
+	box = newBox(9,6);
 	
 	ANIMATION animations[20];
 	initializeAnimations(animations, 20);
@@ -78,16 +80,12 @@ int main(int argc, char* argv[]) {
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
 	
-	char doors[] = {47, 57, 67, 77, 67, 52};
-	
-	SDL_Rect destination;
-	
 	char close_requested = 0;
 	SDL_Event event;
 	
 	//creation of Map1
 	MAP map1;
-	map1 = initialize_Map1(map1);
+	map1 = createMap1(argv[0]);
 	
 	while (!close_requested) {
 		
@@ -126,6 +124,8 @@ int main(int argc, char* argv[]) {
 						case SDL_SCANCODE_SPACE:
 							playerInteraction(player, map1, animations);
 							break;
+						default:
+							break;
 					}
 					break;
 					
@@ -155,6 +155,8 @@ int main(int argc, char* argv[]) {
 							if (player.x_dir!=-1)
 								player.x_dir = 0;
 							break;
+						default:
+							break;
 					}
 					break;
 			}
@@ -171,21 +173,13 @@ int main(int argc, char* argv[]) {
 		
 		//Draw stuff
 		
-		drawMap(map1, images, rend, tex, destination, player);
+		drawMap(map1, images, rend, tex, player);
 		
 		//draw player
-		drawPlayer(player, images, rend, tex, destination, map1);
+		drawPlayer(player, images, rend, tex, map1);
 		
 		//draw box
-		drawBox(box, images, rend, tex, destination, player, map1.mapSize);
-		
-		//draw door
-		destination.x = 4*100;
-		destination.y = 100;
-		destination.w = 100;
-		destination.h = 100;
-		//SDL_RenderCopy(rend, tex, &images[doors[0]], &destination);
-		
+		drawBox(box, images, rend, tex, player, map1.mapSize);
 		
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);

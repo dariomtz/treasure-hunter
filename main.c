@@ -9,7 +9,7 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2/SDL_image.h>
+#include <SDL2_image/SDL_image.h>
 #include "game_structs.h"
 #include "game_functions.h"
 
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 		
 		//matemachicken stuff
 		frames++;
-		player = updatePlayer(player, map1, shapes, rend);
+		player = updatePlayer2(player, map1, shapes, rend);
 		
 		updateBox(&box, &player, map1, shapes);
 		updateAnimations(animations, 20, &map1);
@@ -177,9 +177,7 @@ int main(int argc, char* argv[]) {
 		//Draw stuff
 		
 		draw(map1, images, rend, tex, player, box, screen);
-		
-
-		
+				
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);
 		

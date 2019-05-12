@@ -9,123 +9,162 @@
 #define game_functions_h
 
 //Draw functions
-void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, BOX box, SCREEN screen){
+void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, int mapSize) {
+	SDL_Rect destination;
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = box.x;
+	else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = box.x - mapSize * SCALE + WINDOW_WIDTH;
+	else
+		destination.x = box.x - (user.x - WINDOW_WIDTH / 2);
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = box.y;
+	else if (user.y > mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = box.y - mapSize * SCALE + WINDOW_HEIGHT;
+	else
+		destination.y = box.y - (user.y - WINDOW_HEIGHT / 2);
+	destination.h = box.h;
+	destination.w = box.w;
+	
+	SDL_RenderCopy(rend, tex, &images[box.image], &destination);
+}
 
+void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, MAP map) {
+	SDL_Rect destination;
+	if (user.x < WINDOW_WIDTH / 2)
+		destination.x = user.x;
+	else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
+		destination.x = user.x - map.mapSize * SCALE + WINDOW_WIDTH ;
+	else
+		destination.x = WINDOW_WIDTH / 2;
+	if (user.y < WINDOW_HEIGHT / 2)
+		destination.y = user.y;
+	else if (user.y > map.mapSize * SCALE - WINDOW_HEIGHT / 2)
+		destination.y = user.y - map.mapSize * SCALE + WINDOW_HEIGHT ;
+	else
+		destination.y = WINDOW_HEIGHT / 2;
+	destination.h = user.h;
+	destination.w = user.w;
+	SDL_RenderCopy(rend, tex, &images[user.image], &destination);
+}
+
+void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, BOX box, SCREEN screen){
 	SDL_Rect destination;
 	for (int j=screen.y-1; j<screen.y2; j++) {
-		        for (int k = screen.x; k<screen.x2; k++) {
-		            destination.x = (k-screen.x)*SCALE-screen.x_module;
-		            destination.y = (j-screen.y)*SCALE-screen.y_module;
-					destination.w = SCALE;
-					destination.h = SCALE;
-		            SDL_RenderCopy(rend, tex, &images[LIGHT], &destination);
-		        }
-			}
-
-	for (int j = screen.y-1; j < screen.y2; j++) {
-		for (int k = screen.x; k < screen.x2; k++) {
-			destination.x = (k - screen.x) * SCALE - screen.x_module;
-			destination.y = (j - screen.y) * SCALE - screen.y_module;
+		for (int k = screen.x; k<screen.x2; k++) {
+			destination.x = (k-screen.x)*SCALE-screen.x_module;
+			destination.y = (j-screen.y)*SCALE-screen.y_module;
 			destination.w = SCALE;
 			destination.h = SCALE;
-			SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
-			if (user.y < box.y) {
-				if (j == user.y / SCALE) {
-					drawPlayer(user, images, rend, tex, destination, map);
-				}
-				if (j == box.y / SCALE) {
-					drawBox(box, images, rend, tex, destination, user,map.mapSize);
-				}
+			SDL_RenderCopy(rend, tex, &images[LIGHT], &destination);
+		}
+	}
+	
+	unsigned char drawPriority[9][11];
+	for (int j = screen.y; j < screen.y2; j++) {
+		for (int k = screen.x; k < screen.x2; k++) {
+			drawPriority[j-screen.y][k - screen.x] = 0;
+			if (j == user.y / SCALE || j == box.y / SCALE) {
+				drawPriority[j-screen.y][k - screen.x] = 1;
 			}
-			else {
-					if (j == box.y / SCALE) {
-					drawBox(box, images, rend, tex, destination, user, map.mapSize);
-					}
-					if (j == user.y / SCALE) {
-					drawPlayer(user, images, rend, tex, destination, map);
-					}
-
+			switch (map.walls[j][k]) {
+				case 157:
+				case 158:
+				case 159:
+				case 167:
+				case 168:
+				case 169:
+				case 177:
+				case 178:
+				case 179:
+				case 187:
+				case 188:
+				case 189:
+					drawPriority[j-screen.y][k - screen.x] = 1;
+					break;
+				case 23:
+				case 30:
+				case 40:
+				case 53:
+				case 63:
+				case 73:
+				case 64:
+				case 74:
+				case 75:
+				case 52:
+				case 80:
+				case 90:
+				case 100:
+				case 103:
+				case 110:
+				case 113:
+				case 120:
+				case 123:
+				case 130:
+				case 133:
+				case 140:
+				case 143:
+				case 150:
+				case 153:
+				case 160:
+				case 163:
+				case 170:
+				case 173:
+				case 180:
+				case 183:
+				case 190:
+				case 193:
+				case 200:
+				case 203:
+				case 210:
+				case 213:
+				case 220:
+				case 223:
+				case 230:
+				case 233:
+					drawPriority[j-screen.y][k - screen.x] = 0;
+					break;
+				default:
+					break;
 			}
 		}
 	}
-
-
-	/*
-	if(y_cut[1] == map.mapSize)
-		y_cut[1] --;
-    //draw whatever is not a floor of map 1
-	for (int w = 1; w < y_cut[0]; w++) {
-		screen.y2 = y_cut[w];
-		if (w != 1) {
-			printf("%u: %u a %u \n",w,screen.y,screen.y2);
-			drawWall(map, images, rend, tex, destination, screen, y_cut[w-1], y_real);
-		}
-		else{
-			printf("%u: %u a %u \n",w,screen.y,screen.y2);
-			drawWall(map, images, rend, tex, destination, screen, y_cut[w-1], 0);
-		}
-
-
-		if (draw_value[w] == 0) {
-			drawPlayer(user, images, rend, tex, destination, map);
-
-		} else if (draw_value[w] == 1) {
-			drawBox(box, images, rend, tex, destination, user, map.mapSize);
-		}
-		else if(draw_value[w] == 3){
-			if(user.y < box.y){
-			drawPlayer(user, images, rend, tex, destination, map);
-			drawBox(box, images, rend, tex, destination, user, map.mapSize);
-			}else{
-				drawPlayer(user, images, rend, tex, destination, map);
-				drawBox(box, images, rend, tex, destination, user, map.mapSize);
+	
+	for (int j = screen.y; j < screen.y2; j++) {
+		for (int k = screen.x; k < screen.x2; k++) {
+			if (drawPriority[j-screen.y][k - screen.x] == 1) {
+				destination.x = (k - screen.x) * SCALE - screen.x_module;
+				destination.y = (j - screen.y) * SCALE - screen.y_module;
+				destination.w = SCALE;
+				destination.h = SCALE;
+				
+				SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
 			}
-
 		}
-		screen.y = screen.y2;
 	}
-	printf("\n\n");
-	*/
-}
-
-void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
-                SDL_Texture * tex, SDL_Rect destination, MAP map) {
-    if (user.x < WINDOW_WIDTH / 2)
-        destination.x = user.x;
-    else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
-        destination.x = user.x - map.mapSize * SCALE + WINDOW_WIDTH ;
-    else
-        destination.x = WINDOW_WIDTH / 2;
-    if (user.y < WINDOW_HEIGHT / 2)
-        destination.y = user.y;
-    else if (user.y > map.mapSize * SCALE - WINDOW_HEIGHT / 2)
-        destination.y = user.y - map.mapSize * SCALE + WINDOW_HEIGHT ;
-    else
-        destination.y = WINDOW_HEIGHT / 2;
-    destination.h = user.h;
-    destination.w = user.w;
-    SDL_RenderCopy(rend, tex, &images[user.image], &destination);
-}
-
-void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
-             SDL_Rect destination, PLAYER user, int mapSize) {
-
-    if (user.x < WINDOW_WIDTH / 2)
-        destination.x = box.x;
-    else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
-        destination.x = box.x - mapSize * SCALE + WINDOW_WIDTH;
-    else
-        destination.x = box.x - (user.x - WINDOW_WIDTH / 2);
-    if (user.y < WINDOW_HEIGHT / 2)
-        destination.y = box.y;
-    else if (user.y > mapSize * SCALE - WINDOW_HEIGHT / 2)
-        destination.y = box.y - mapSize * SCALE + WINDOW_HEIGHT;
-    else
-        destination.y = box.y - (user.y - WINDOW_HEIGHT / 2);
-    destination.h = box.h;
-    destination.w = box.w;
-
-    SDL_RenderCopy(rend, tex, &images[box.image], &destination);
+	
+	
+	if (user.y < box.y) {
+		drawPlayer(user, images, rend, tex, map);
+		drawBox(box, images, rend, tex, user,map.mapSize);
+	}
+	else {
+		drawBox(box, images, rend, tex, user,map.mapSize);
+		drawPlayer(user, images, rend, tex, map);
+	}
+	
+	for (int j = screen.y; j < screen.y2; j++) {
+		for (int k = screen.x; k < screen.x2; k++) {
+			if (drawPriority[j-screen.y][k - screen.x] == 0) {
+				destination.x = (k - screen.x) * SCALE - screen.x_module;
+				destination.y = (j - screen.y) * SCALE - screen.y_module;
+				destination.w = SCALE;
+				destination.h = SCALE;
+				
+				SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
+			}
+		}
+	}
 }
 
 //-------------------------------------------------------------------------------------------
@@ -134,19 +173,17 @@ void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
 unsigned char rectIsInsideRect(SDL_Rect rect1, SDL_Rect rect2) {
     unsigned char contact = 0;
     if (rect1.x <= rect2.x) {
-        if (rect1.x + rect1.w > rect2.x)
+        if (rect1.x + rect1.w >= rect2.x)
             contact++;
-    } else {
-        if (rect2.x + rect2.w > rect1.x)
+    } else if (rect2.x + rect2.w >= rect1.x)
             contact++;
-    }
+
     if (rect1.y <= rect2.y) {
-        if (rect1.y + rect1.h > rect2.y)
+        if (rect1.y + rect1.h >= rect2.y)
             contact++;
-    } else {
-        if (rect2.y + rect2.h > rect1.y)
+    } else if (rect2.y + rect2.h >= rect1.y)
             contact++;
-    }
+
     return (contact == 2);
 }
 
@@ -271,6 +308,12 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
         }
     }
 	
+	SDL_Rect playerHitBox;
+	playerHitBox.x = user.x;
+	playerHitBox.y = user.y + 7 * SCALE/8;
+	playerHitBox.w = user.w;
+	playerHitBox.h = SCALE / 8;
+	
 	SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
 	SDL_RenderDrawRects(rend, rect, 10);
 	
@@ -326,6 +369,117 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
             break;
     }
     return user;
+}
+
+PLAYER updatePlayer2(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend) {
+	int x1, x2, x3, x4, y1, y2, y3;
+	x1 = user.x - user.w;
+	x2 = user.x;
+	x3 = user.x + user.w;
+	x4 = user.x + user.w * 2;
+	
+	y1 = user.y;
+	y2 = user.y + user.h;
+	y3 = user.y + user.h * 2;
+	
+	int xy[12][2] = {
+		{x1,y1}, {x2,y1}, {x3,y1}, {x4,y1},
+		{x1,y2}, {x2,y2}, {x3,y2}, {x4,y2},
+		{x1,y3}, {x2,y3}, {x3,y3}, {x4,y3}
+	};
+	
+	SDL_Rect rect[12];
+	for (int i= 0;i<12;i++){
+		int x = xy[i][0], y = xy[i][1];
+		int numOfPiece = map.walls[y/SCALE][x/SCALE];
+		
+		if (shapes[numOfPiece].w==0) {
+			rect[i].x = 0;
+			rect[i].y = 0;
+			rect[i].w = 0;
+			rect[i].h = 0;
+		}else{
+			rect[i].x = shapes[numOfPiece].x;
+			rect[i].y = shapes[numOfPiece].y;
+			rect[i].w = shapes[numOfPiece].w;
+			rect[i].h = shapes[numOfPiece].h;
+			rect[i].x += x/SCALE * SCALE;
+			rect[i].y += y/SCALE * SCALE;
+		}
+	}
+	
+	SDL_Rect playerHitBox;
+	playerHitBox.x = user.x;
+	playerHitBox.y = user.y + 7 * SCALE/8;
+	playerHitBox.w = user.w;
+	playerHitBox.h = SCALE / 8;
+	
+	SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+	SDL_RenderDrawRects(rend, rect, 10);
+	
+	SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
+	
+	//change the position of the player based on direction.
+	switch (user.x_dir){
+		case 1:
+			//check if by moving right it is now inside a place it shouldn't be before moving
+			playerHitBox.x += user.speed;
+			if (rectIsInsideRect(playerHitBox, rect[2]) ||
+				rectIsInsideRect(playerHitBox, rect[3]) ||
+				rectIsInsideRect(playerHitBox, rect[6]) ||
+				rectIsInsideRect(playerHitBox, rect[7]) ||
+				rectIsInsideRect(playerHitBox, rect[10]) ||
+				rectIsInsideRect(playerHitBox, rect[11])) {
+				playerHitBox.x -= user.speed;
+			}
+			break;
+		case -1:
+			//check if by moving right it is now inside a place it shouldn't be before moving
+			playerHitBox.x -= user.speed;
+			if (rectIsInsideRect(playerHitBox, rect[0]) ||
+				rectIsInsideRect(playerHitBox, rect[1]) ||
+				rectIsInsideRect(playerHitBox, rect[4]) ||
+				rectIsInsideRect(playerHitBox, rect[5]) ||
+				rectIsInsideRect(playerHitBox, rect[8]) ||
+				rectIsInsideRect(playerHitBox, rect[9])) {
+				playerHitBox.x += user.speed;
+			}
+			break;
+	}
+	
+	switch (user.y_dir){
+		case 1:
+			//check if by moving down it is now inside a place it shouldn't be before moving
+			playerHitBox.y += user.speed;
+			if (rectIsInsideRect(playerHitBox, rect[4]) ||
+				rectIsInsideRect(playerHitBox, rect[5]) ||
+				rectIsInsideRect(playerHitBox, rect[6]) ||
+				rectIsInsideRect(playerHitBox, rect[7]) ||
+				rectIsInsideRect(playerHitBox, rect[8]) ||
+				rectIsInsideRect(playerHitBox, rect[9]) ||
+				rectIsInsideRect(playerHitBox, rect[10]) ||
+				rectIsInsideRect(playerHitBox, rect[11])) {
+				playerHitBox.y -= user.speed;
+			}
+			break;
+		case -1:
+			//check if by moving up it is now inside a place it shouldn't be before moving
+			playerHitBox.y -= user.speed;
+			if (rectIsInsideRect(playerHitBox, rect[0]) ||
+				rectIsInsideRect(playerHitBox, rect[1]) ||
+				rectIsInsideRect(playerHitBox, rect[2]) ||
+				rectIsInsideRect(playerHitBox, rect[3]) ||
+				rectIsInsideRect(playerHitBox, rect[4]) ||
+				rectIsInsideRect(playerHitBox, rect[5]) ||
+				rectIsInsideRect(playerHitBox, rect[6]) ||
+				rectIsInsideRect(playerHitBox, rect[7])) {
+				playerHitBox.y += user.speed;
+			}
+			break;
+	}
+	user.x = playerHitBox.x;
+	user.y = playerHitBox.y - 7 * SCALE / 8;
+	return user;
 }
 
 unsigned char player_box_contact(PLAYER * player, BOX * box, SDL_Rect shapes[]) {
@@ -418,7 +572,7 @@ void initializePlayer(PLAYER * player) {
     player -> x = 3 * SCALE;
     player -> y = 3 * SCALE;
     player -> h = 1 * SCALE;
-    player -> w = 1 * SCALE;
+    player -> w = 3 * SCALE / 4;
     player -> x_dir = 0;
     player -> y_dir = 0;
     player -> speed = 5;
@@ -509,7 +663,6 @@ MAP createMap1(char dir[]){
 			}
 			w++;
 		}
-		
 	}else{
 		printf("ERROR: Unable to read CSV File \"resources/menu.csv\"");
 	}
@@ -518,7 +671,6 @@ MAP createMap1(char dir[]){
 }
 
 void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
-
 	printf("%s\n", dir);
 	int count = 0;
 	while (dir[count] != '\0') {
@@ -529,8 +681,6 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 		dir[i] = '\0';
 		i--;
 	}
-	printf("%s\n", dir);
-
 	char filePath[255];
 	strcpy(filePath, dir);
 	strcat(filePath, "resources/game_hitbox.csv");
@@ -558,21 +708,12 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 				}
 				j++;
 				i++;
-
 			}
-			printf("%s", line);
-			for (int w =0;w<6;w++){
-				printf("%u,",piece[w]);
-			}
-			printf("\n\n\n");
-
 			arrayRects[piece[0]].x = (int) (piece[1] / (float) 16 * SCALE);
 			arrayRects[piece[0]].y = (int) (piece[2] / (float) 16 * SCALE);
 			arrayRects[piece[0]].w = (int) (piece[3] / (float) 16 * SCALE);
 			arrayRects[piece[0]].h = (int) (piece[4] / (float) 16 * SCALE);
-
 		}
-
 	}else{
 		printf("ERROR: Unable to read CSV File \"resources/game_hitbox.csv\"");
 

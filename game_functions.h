@@ -455,7 +455,7 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 		count ++;
 	}
 	int i=count;
-	while (dir[i] != '/') {
+	while (dir[i] != '/' && dir[i] != '\\') {
 		dir[i] = '\0';
 		i--;
 	}
@@ -469,7 +469,7 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 
 	if(file != NULL){
 		while (fgets(line, 256, file)){
-			int piece[5];
+			int piece[6];
 			char num[5];
 			i = 0;
 			int j = 0;
@@ -492,6 +492,8 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 			arrayRects[piece[0]].y = (int) (piece[2] / (float) 16 * SCALE);
 			arrayRects[piece[0]].w = (int) (piece[3] / (float) 16 * SCALE);
 			arrayRects[piece[0]].h = (int) (piece[4] / (float) 16 * SCALE);
+			
+			printf("%s", line);
 		}
 		
 	}else{

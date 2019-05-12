@@ -2,7 +2,7 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
+//  Created by DarÃƒÂ­o MartÃƒÂ­nez and Miguel GonzÃƒÂ¡lez on 4/2/19.
 //
 
 #ifndef game_structs_h
@@ -53,6 +53,15 @@ typedef struct{
     unsigned char y;
     unsigned char images[15];
 } ANIMATION;
+
+typedef struct{
+	unsigned char x;
+	unsigned char y;
+	unsigned char x2;
+	unsigned char y2;
+	unsigned char x_module;
+	unsigned char y_module;
+}SCREEN;
 
 //All the levels
 //menu

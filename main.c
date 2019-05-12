@@ -2,14 +2,14 @@
 //  main.c
 //  Hide and Sick
 //
-//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
+//  Created by DarÃƒÂ­o MartÃƒÂ­nez and Miguel GonzÃƒÂ¡lez on 4/2/19.
 //
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <SDL2_image/SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include "game_structs.h"
 #include "game_functions.h"
 
@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
 	ANIMATION animations[20];
 	initializeAnimations(animations, 20);
 	
+	SCREEN screen;
+
 	int ticks_delay = 1000 / 60;
 	unsigned char frames = 0;
 	
@@ -170,16 +172,13 @@ int main(int argc, char* argv[]) {
 		
 		updateBox(&box, &player, map1, shapes);
 		updateAnimations(animations, 20, &map1);
+		updateScreen(&screen,player,map1);
 		
 		//Draw stuff
 		
-		drawMap(map1, images, rend, tex, player);
+		draw(map1, images, rend, tex, player, box, screen);
 		
-		//draw player
-		drawPlayer(player, images, rend, tex, map1);
-		
-		//draw box
-		drawBox(box, images, rend, tex, player, map1.mapSize);
+
 		
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);

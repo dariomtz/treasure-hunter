@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	initializeImageRect(images);
 	
 	SDL_Rect shapes[240];
-	initializeShapesRect(shapes);
+	initializeShapesRect(shapes,argv[0]);
 	
 	PLAYER player;
 	initializePlayer(&player);

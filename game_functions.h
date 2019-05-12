@@ -1,8 +1,8 @@
 //
-//  main.c
+//  game_functions.h
 //  Hide and Sick
 //
-//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
+//  Created by Darío Martínez and Miguel González on 4/2/19.
 //
 
 #ifndef game_functions_h

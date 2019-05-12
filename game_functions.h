@@ -2,71 +2,94 @@
 //  game_functions.h
 //  Hide and Sick
 //
-//  Created by Darío Martínez and Miguel González on 4/2/19.
+//  Created by DarÃ­o MartÃ­nez and Miguel GonzÃ¡lez on 4/2/19.
 //
 
 #ifndef game_functions_h
 #define game_functions_h
 
 //Draw functions
-void drawMap(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,PLAYER user){
+void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, BOX box, SCREEN screen){
+
 	SDL_Rect destination;
-    unsigned char x_initial, x_final, y_initial, y_final, x_module, y_module;
-    x_module = 0;
-    y_module = 0;
-    if (user.x < WINDOW_WIDTH / 2) {
-        x_initial = 0;
-        x_final = WINDOW_WIDTH / SCALE;
-    } else if(user.x > map.mapSize*SCALE-WINDOW_WIDTH/2){
-        x_initial = map.mapSize-WINDOW_WIDTH/SCALE;
-        x_final = map.mapSize;
-    }else{
-        x_initial = (user.x - WINDOW_WIDTH / 2) / SCALE;
-        x_final = (user.x + WINDOW_WIDTH / 2) / SCALE+1;
-        x_module = user.x%SCALE;
-    }
-    
-    if (user.y < WINDOW_HEIGHT / 2) {
-        y_initial = 0;
-        y_final = WINDOW_HEIGHT / SCALE;
-    } else if(user.y > map.mapSize*SCALE-WINDOW_HEIGHT/2){
-        y_initial = map.mapSize-WINDOW_HEIGHT/SCALE;
-        y_final = map.mapSize;
-        
-    }else{
-        y_initial = (user.y - WINDOW_HEIGHT / 2) / SCALE;
-        y_final = (user.y + WINDOW_HEIGHT / 2) / SCALE+1;
-        y_module = user.y%SCALE;
-    }
-    
-    //draw floor of map 1
-    for (int j=y_initial; j<y_final; j++) {
-        for (int k = x_initial; k<x_final; k++) {
-            destination.x = (k-x_initial)*SCALE-x_module;
-            destination.y = (j-y_initial)*SCALE-y_module;
+	for (int j=screen.y-1; j<screen.y2; j++) {
+		        for (int k = screen.x; k<screen.x2; k++) {
+		            destination.x = (k-screen.x)*SCALE-screen.x_module;
+		            destination.y = (j-screen.y)*SCALE-screen.y_module;
+					destination.w = SCALE;
+					destination.h = SCALE;
+		            SDL_RenderCopy(rend, tex, &images[LIGHT], &destination);
+		        }
+			}
+
+	for (int j = screen.y-1; j < screen.y2; j++) {
+		for (int k = screen.x; k < screen.x2; k++) {
+			destination.x = (k - screen.x) * SCALE - screen.x_module;
+			destination.y = (j - screen.y) * SCALE - screen.y_module;
 			destination.w = SCALE;
 			destination.h = SCALE;
-            SDL_RenderCopy(rend, tex, &images[LIGHT], &destination);
-        }
-    }
-    
+			SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
+			if (user.y < box.y) {
+				if (j == user.y / SCALE) {
+					drawPlayer(user, images, rend, tex, destination, map);
+				}
+				if (j == box.y / SCALE) {
+					drawBox(box, images, rend, tex, destination, user,map.mapSize);
+				}
+			}
+			else {
+					if (j == box.y / SCALE) {
+					drawBox(box, images, rend, tex, destination, user, map.mapSize);
+					}
+					if (j == user.y / SCALE) {
+					drawPlayer(user, images, rend, tex, destination, map);
+					}
+
+			}
+		}
+	}
+
+
+	/*
+	if(y_cut[1] == map.mapSize)
+		y_cut[1] --;
     //draw whatever is not a floor of map 1
-    for (int j=y_initial; j<y_final; j++) {
-        for (int k = x_initial; k<x_final; k++)  {
-            destination.x = (k-x_initial)*SCALE-x_module;
-            destination.y = (j-y_initial)*SCALE-y_module;
-            //if you are going to use the height and width of the image as a reference...
-            //  it is necesary to divide it by 16 (which is the number of pixels of every unit in the image
-            destination.w = images[map.walls[j][k]].w*SCALE/16;
-            destination.h = images[map.walls[j][k]].h*SCALE/16;
-            SDL_RenderCopy(rend, tex, &images[map.walls[j][k]], &destination);
-        }
-    }
+	for (int w = 1; w < y_cut[0]; w++) {
+		screen.y2 = y_cut[w];
+		if (w != 1) {
+			printf("%u: %u a %u \n",w,screen.y,screen.y2);
+			drawWall(map, images, rend, tex, destination, screen, y_cut[w-1], y_real);
+		}
+		else{
+			printf("%u: %u a %u \n",w,screen.y,screen.y2);
+			drawWall(map, images, rend, tex, destination, screen, y_cut[w-1], 0);
+		}
+
+
+		if (draw_value[w] == 0) {
+			drawPlayer(user, images, rend, tex, destination, map);
+
+		} else if (draw_value[w] == 1) {
+			drawBox(box, images, rend, tex, destination, user, map.mapSize);
+		}
+		else if(draw_value[w] == 3){
+			if(user.y < box.y){
+			drawPlayer(user, images, rend, tex, destination, map);
+			drawBox(box, images, rend, tex, destination, user, map.mapSize);
+			}else{
+				drawPlayer(user, images, rend, tex, destination, map);
+				drawBox(box, images, rend, tex, destination, user, map.mapSize);
+			}
+
+		}
+		screen.y = screen.y2;
+	}
+	printf("\n\n");
+	*/
 }
 
 void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
-                SDL_Texture * tex, MAP map) {
-	SDL_Rect destination;
+                SDL_Texture * tex, SDL_Rect destination, MAP map) {
     if (user.x < WINDOW_WIDTH / 2)
         destination.x = user.x;
     else if (user.x > map.mapSize * SCALE - WINDOW_WIDTH / 2)
@@ -84,8 +107,9 @@ void drawPlayer(PLAYER user,SDL_Rect images[], SDL_Renderer * rend,
     SDL_RenderCopy(rend, tex, &images[user.image], &destination);
 }
 
-void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PLAYER user, int mapSize) {
-	SDL_Rect destination;
+void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
+             SDL_Rect destination, PLAYER user, int mapSize) {
+
     if (user.x < WINDOW_WIDTH / 2)
         destination.x = box.x;
     else if (user.x > mapSize * SCALE - WINDOW_WIDTH / 2)
@@ -100,7 +124,7 @@ void drawBox(BOX box, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex,
         destination.y = box.y - (user.y - WINDOW_HEIGHT / 2);
     destination.h = box.h;
     destination.w = box.w;
-    
+
     SDL_RenderCopy(rend, tex, &images[box.image], &destination);
 }
 
@@ -357,6 +381,36 @@ void updateBox(BOX * box, PLAYER * player, MAP map, SDL_Rect shapes[]){
     }
 }
 
+void updateScreen(SCREEN *screen, PLAYER user, MAP map){
+	screen->x_module = 0;
+	screen->y_module = 0;
+	if (user.x < WINDOW_WIDTH / 2) {
+	        screen->x = 0;
+	        screen->x2 = WINDOW_WIDTH / SCALE;
+	    } else if(user.x > map.mapSize*SCALE-WINDOW_WIDTH/2){
+	    	screen->x = map.mapSize-WINDOW_WIDTH/SCALE;
+	    	screen->x2 = map.mapSize;
+	    }else{
+	    	screen->x = (user.x - WINDOW_WIDTH / 2) / SCALE;
+	    	screen->x2 = (user.x + WINDOW_WIDTH / 2) / SCALE+1;
+	    	screen->x_module = user.x%SCALE;
+	    }
+
+	    if (user.y < WINDOW_HEIGHT / 2) {
+	    	screen->y = 0;
+	        screen->y2 = WINDOW_HEIGHT / SCALE;
+	    } else if(user.y > map.mapSize*SCALE-WINDOW_HEIGHT/2){
+	    	screen->y = map.mapSize-WINDOW_HEIGHT/SCALE;
+	        screen->y2 = map.mapSize;
+
+	    }else{
+	    	screen->y = (user.y - WINDOW_HEIGHT / 2) / SCALE;
+	        screen->y2 = (user.y + WINDOW_HEIGHT / 2) / SCALE+1;
+	        screen->y_module = user.y%SCALE;
+	    }
+}
+
+
 //-------------------------------------------------------------------------------------------
 //Initialization functions
 
@@ -464,6 +518,8 @@ MAP createMap1(char dir[]){
 }
 
 void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
+
+	printf("%s\n", dir);
 	int count = 0;
 	while (dir[count] != '\0') {
 		count ++;
@@ -474,14 +530,14 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 		i--;
 	}
 	printf("%s\n", dir);
-	
+
 	char filePath[255];
 	strcpy(filePath, dir);
 	strcat(filePath, "resources/game_hitbox.csv");
 	FILE * file = fopen(filePath, "r");
 	char line[256];
-
 	if(file != NULL){
+
 		while (fgets(line, 256, file)){
 			int piece[6];
 			char num[5];
@@ -489,6 +545,7 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 			int j = 0;
 			int k = 0;
 			while(line[i] != '\n'){
+
 				if (line[i] == ',' ) {
 					j = - 1;
 				}else{
@@ -501,17 +558,27 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 				}
 				j++;
 				i++;
+
 			}
+			printf("%s", line);
+			for (int w =0;w<6;w++){
+				printf("%u,",piece[w]);
+			}
+			printf("\n\n\n");
+
 			arrayRects[piece[0]].x = (int) (piece[1] / (float) 16 * SCALE);
 			arrayRects[piece[0]].y = (int) (piece[2] / (float) 16 * SCALE);
 			arrayRects[piece[0]].w = (int) (piece[3] / (float) 16 * SCALE);
 			arrayRects[piece[0]].h = (int) (piece[4] / (float) 16 * SCALE);
+
 		}
-		
+
 	}else{
 		printf("ERROR: Unable to read CSV File \"resources/game_hitbox.csv\"");
+
 	}
 	fclose(file);
+
 }
 
 #endif /* game_functions_h */

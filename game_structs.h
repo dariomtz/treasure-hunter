@@ -32,10 +32,6 @@ typedef struct{
 typedef struct{
     unsigned char walls[50][50];
     int mapSize;
-    int player_y;
-    int player_x;
-    int box_y;
-    int box_x;
 } MAP;
 
 //box

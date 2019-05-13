@@ -80,6 +80,34 @@ void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PL
 				case 187:
 				case 188:
 				case 189:
+				case 102:
+				case 105:
+				case 112:
+				case 115:
+				case 122:
+				case 125:
+				case 132:
+				case 135:
+				case 142:
+				case 145:
+				case 152:
+				case 155:
+				case 162:
+				case 165:
+				case 172:
+				case 175:
+				case 182:
+				case 185:
+				case 192:
+				case 195:
+				case 202:
+				case 205:
+				case 212:
+				case 215:
+				case 222:
+				case 225:
+				case 232:
+				case 235:
 					drawPriority[j-screen.y][k - screen.x] = 1;
 					break;
 				case 23:
@@ -205,57 +233,207 @@ unsigned char isLineInsideRect(int y, int x1, int x2, SDL_Rect rect){
 //-------------------------------------------------------------------------------------------
 //update functions
 
-void playerInteraction(PLAYER player, MAP map, ANIMATION animations[]){
-	unsigned char x = (player.x + player.w/2)/SCALE, y = (player.y + player.h/2)/SCALE;
-	unsigned char image = map.walls[y][x];
-
+void addAnimation(int x, int y, int numOfBeginning, ANIMATION animations[]){
 	int i = 0;
-	while (animations[i].active == 1) {
+	while (animations[i].active) {
 		i++;
 	}
-
-	switch (image) {
+	animations[i].active = 1;
+	animations[i].current = 0;
+	animations[i].x = x;
+	animations[i].y = y;
+	animations[i].skip = 1;
+	switch (numOfBeginning) {
 		case 47:
-			animations[i].active = 1;
-			animations[i].current = 0;
 			animations[i].length = 4;
-			animations[i].x = x;
-			animations[i].y = y;
-			for (int j = 0; j < 4; j++) {
-				animations[i].images[j] = 47 + j*10;
-			}
-			animations[i].images[4] = '\0';
-			//printf("%s", animations[i].images);
+			animations[i].dir = 1;
 			break;
 		case 5:
-			animations[i].active = 1;
-			animations[i].current = 0;
 			animations[i].length = 7;
-			animations[i].x = x;
-			animations[i].y = y;
-			for (int j = 0; j < 7; j++) {
-				animations[i].images[j] = 5 + j*10;
-			}
-			animations[i].images[7] = '\0';
-			//printf("%s", animations[i].images);
+			animations[i].dir = 1;
 			break;
 		case 65:
-			animations[i].active = 1;
-			animations[i].current = 0;
 			animations[i].length = 7;
-			animations[i].x = x;
-			animations[i].y = y;
-			for (int j = 0; j < 7; j++) {
-				animations[i].images[j] = 65 - j*10;
-			}
-			animations[i].images[7] = '\0';
-			//printf("%s", animations[i].images);
+			animations[i].dir = -1;
 			break;
-
+		case 46:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			break;
+		case 6:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			break;
+		case 8:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 9:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 18:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 19:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 28:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 29:
+			animations[i].length = 5;
+			animations[i].dir = 1;
+			animations[i].skip = 3;
+			break;
+		case 128:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
+		case 129:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
+		case 138:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
+		case 139:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
+		case 148:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
+		case 149:
+			animations[i].length = 5;
+			animations[i].dir = -1;
+			animations[i].skip = 3;
+			break;
 		default:
+			animations[i].active = 0;
+			animations[i].x = 0;
+			animations[i].y = 0;
+			animations[i].length = 0;
+			animations[i].dir = 0;
 			printf("\nNo action to be done");
 			break;
+			
 	}
+	for (int j = 0; j < animations[i].length; j++) {
+		animations[i].images[j] = numOfBeginning + j * 10 * animations[i].dir * animations[i].skip;
+	}
+	
+}
+
+unsigned char playerInteraction(PLAYER * player, MAP map, ANIMATION animations[], unsigned char currentMap){
+	unsigned char initialMap = currentMap;
+	unsigned char x = (player -> x + player -> w/2)/SCALE, y = (player -> y + player -> h/2)/SCALE;
+	unsigned char image = map.walls[y][x];
+	unsigned char playerDestinationX = x, playerDestinationY = y;
+	switch (image) {
+		case 46:
+		case 8:
+		case 9:
+		case 18:
+		case 19:
+		case 28:
+		case 29:
+		case 128:
+		case 129:
+		case 138:
+		case 148:
+		case 149:
+			break;
+		case 6:
+			if (initialMap == 0){
+				if (x == 19 && y == 19) {
+					currentMap = 5;
+					playerDestinationY = 1;
+					playerDestinationX = 2;
+				}
+			}else if(initialMap == 5){
+				if (x == 2 && y == 1) {
+					currentMap = 0;
+					playerDestinationY = 19;
+					playerDestinationX = 19;
+				}
+			}
+		case 139:
+			if (initialMap == 0){
+				if (x == 3 && y == 17) {
+					currentMap = 4;
+					playerDestinationY = 1;
+					playerDestinationX = 2;
+				}
+			}else if(initialMap == 4){
+				if (x == 2 && y == 1) {
+					currentMap = 0;
+					playerDestinationY = 17;
+					playerDestinationX = 3;
+				}
+			}
+			break;
+		case 77:
+			switch (initialMap) {
+				case 0:
+					if (x == 2 && y == 1) {
+						currentMap = 1;
+					}else if (x == 2 && y == 10) {
+						currentMap = 2;
+						playerDestinationY = 1;
+					}else if (x == 22 && y == 3) {
+						currentMap = 3;
+						playerDestinationY = 1;
+						playerDestinationX = 2;
+					}
+					break;
+				case 1:
+					if (x == 2 && y == 1) {
+						currentMap = 0;
+					}
+					break;
+				case 2:
+					if (x == 2 && y == 1) {
+						currentMap = 0;
+						playerDestinationY = 10;
+					}
+					break;
+				case 3:
+					if (x == 2 && y == 1) {
+						currentMap = 0;
+						playerDestinationY = 3;
+						playerDestinationX = 22;
+					}
+					break;
+				default:
+					break;
+			}
+			
+		default:
+			addAnimation(x, y, image, animations);
+			break;
+	}
+	if(initialMap != currentMap){
+		player -> x = playerDestinationX * SCALE + SCALE / 8;
+		player -> y = playerDestinationY * SCALE;
+		
+	}
+	return currentMap;
 
 }
 
@@ -615,10 +793,7 @@ void initializeAnimations(ANIMATION animations[], int num){
 	}
 }
 
-MAP createMap1(char dir[]){
-	MAP map;
-	map.mapSize = 23;
-	
+void createMenu(MAP maps[], char dir[]){
 	int count = 0;
 	while (dir[count] != '\0') {
 		count ++;
@@ -629,22 +804,29 @@ MAP createMap1(char dir[]){
 		i--;
 	}
 	printf("%s\n", dir);
-	
+
 	char filePath[255];
 	strcpy(filePath, dir);
 	strcat(filePath, "resources/game_menu.csv");
 	FILE * file = fopen(filePath, "r");
 	char line[256];
-	
+
 	if(file != NULL){
 		int w = 0;
+		int v = -1;
 		while (fgets(line, 256, file)){
-			int piece[23];
+			if (line[0] == '-' || v == -1){
+				w = 0;
+				v++;
+				maps[v].mapSize = 24;
+			}
+			
+			int piece[maps[v].mapSize];
 			char num[5];
 			i = 0;
 			int j = 0;
 			int k = 0;
-			while(line[i] != '\n'){
+			while(line[i] != '\n' && line[i] != '-'){
 				if (line[i] == ',' ) {
 					j = - 1;
 				}else{
@@ -658,16 +840,18 @@ MAP createMap1(char dir[]){
 				j++;
 				i++;
 			}
-			for (int l = 0; l < 23; l++) {
-				map.walls[w][l] = piece[l];
+
+			if (line[i] != '-') {
+				for (int l = 0; l < maps[v].mapSize; l++) {
+					maps[v].walls[w][l] = piece[l];
+				}
+				w++;
 			}
-			w++;
 		}
 	}else{
 		printf("ERROR: Unable to read CSV File \"resources/menu.csv\"");
 	}
 	fclose(file);
-    return map;
 }
 
 void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){

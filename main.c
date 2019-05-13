@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 	initializePlayer(&player);
 	
 	BOX box;
-	box = newBox(9,6);
+	box = newBox(11,21);
 	
 	ANIMATION animations[20];
 	initializeAnimations(animations, 20);
@@ -86,8 +86,10 @@ int main(int argc, char* argv[]) {
 	SDL_Event event;
 	
 	//creation of Map1
-	MAP map1;
-	map1 = createMap1(argv[0]);
+	MAP maps[6];
+	createMenu(maps, argv[0]);
+	unsigned char currentMap = 0;
+	unsigned int previousMap = 5;
 	
 	while (!close_requested) {
 		
@@ -124,7 +126,8 @@ int main(int argc, char* argv[]) {
 							close_requested = 1;
 							break;
 						case SDL_SCANCODE_SPACE:
-							playerInteraction(player, map1, animations);
+							previousMap = currentMap;
+							currentMap = playerInteraction(&player, maps[currentMap], animations, currentMap);
 							break;
 						default:
 							break;
@@ -168,15 +171,58 @@ int main(int argc, char* argv[]) {
 		
 		//matemachicken stuff
 		frames++;
-		player = updatePlayer2(player, map1, shapes, rend);
+		player = updatePlayer2(player, maps[currentMap], shapes, rend);
 		
-		updateBox(&box, &player, map1, shapes);
-		updateAnimations(animations, 20, &map1);
-		updateScreen(&screen,player,map1);
+		updateBox(&box, &player, maps[0], shapes);
+		updateAnimations(animations, 20, &maps[currentMap]);
+		updateScreen(&screen,player,maps[0]);
+		
+		switch (currentMap) {
+			case 0:
+				if (maps[currentMap].walls[20][18] == 5 && maps[currentMap].walls[19][19] == 46) {
+					addAnimation(19, 19, 46, animations);
+				}
+				
+				if (maps[currentMap].walls[20][18] == 65 && maps[currentMap].walls[19][19] == 6) {
+					addAnimation(19, 19, 6, animations);
+				}
+				
+				if (box.x / SCALE == 1 && box.y /SCALE == 20 && maps[currentMap].walls[17][3] == 19) {
+					addAnimation(2, 16, 8, animations);
+					addAnimation(2, 17, 9, animations);
+					addAnimation(3, 16, 18, animations);
+					addAnimation(3, 17, 19, animations);
+					addAnimation(4, 16, 28, animations);
+					addAnimation(4, 17, 29, animations);
+				}
+				if((box.x / SCALE != 1 || box.y /SCALE != 20) && maps[currentMap].walls[17][3] == 139){
+					addAnimation(2, 16, 128, animations);
+					addAnimation(2, 17, 129, animations);
+					addAnimation(3, 16, 138, animations);
+					addAnimation(3, 17, 139, animations);
+					addAnimation(4, 16, 148, animations);
+					addAnimation(4, 17, 149, animations);
+				}
+				break;
+				
+			default:
+				break;
+			case 5:
+				if (maps[currentMap].walls[2][1] == 5 && maps[currentMap].walls[1][2] == 46) {
+					addAnimation(2, 1, 46, animations);
+					
+				}
+				
+				if (maps[currentMap].walls[2][1] == 65 && maps[currentMap].walls[1][2] == 6) {
+					addAnimation(2, 1, 6, animations);
+				}
+		}
+		
+		
 		
 		//Draw stuff
 		
-		draw(map1, images, rend, tex, player, box, screen);
+		draw(maps[currentMap], images, rend, tex, player, box, screen);
 				
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);

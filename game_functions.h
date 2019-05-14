@@ -68,6 +68,7 @@ void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PL
 				drawPriority[j-screen.y][k - screen.x] = 1;
 			}
 			switch (map.walls[j][k]) {
+				case 24:
 				case 157:
 				case 158:
 				case 159:
@@ -195,6 +196,19 @@ void draw(MAP map, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex, PL
 	}
 }
 
+void drawInventory(PLAYER player, SDL_Rect images[], SDL_Renderer * rend, SDL_Texture * tex){
+	SDL_Rect dest;
+	for (int i = 0; i < 5; i++) {
+		if (player.rocks[i]) {
+			dest.x = i * SCALE;
+			dest.y = 0;
+			dest.h = SCALE;
+			dest.w = SCALE;
+			SDL_RenderCopy(rend, tex, &images[(19 + i) * 10 + 6], &dest);
+		}
+	}
+}
+
 //-------------------------------------------------------------------------------------------
 //Math functions
 
@@ -243,14 +257,13 @@ void addAnimation(int x, int y, int numOfBeginning, ANIMATION animations[]){
 	animations[i].x = x;
 	animations[i].y = y;
 	animations[i].skip = 1;
+	animations[i].dir = 1;
 	switch (numOfBeginning) {
 		case 47:
 			animations[i].length = 4;
-			animations[i].dir = 1;
 			break;
 		case 5:
 			animations[i].length = 7;
-			animations[i].dir = 1;
 			break;
 		case 65:
 			animations[i].length = 7;
@@ -262,36 +275,29 @@ void addAnimation(int x, int y, int numOfBeginning, ANIMATION animations[]){
 			break;
 		case 6:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			break;
 		case 8:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 9:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 18:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 19:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 28:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 29:
 			animations[i].length = 5;
-			animations[i].dir = 1;
 			animations[i].skip = 3;
 			break;
 		case 128:
@@ -324,13 +330,15 @@ void addAnimation(int x, int y, int numOfBeginning, ANIMATION animations[]){
 			animations[i].dir = -1;
 			animations[i].skip = 3;
 			break;
+		case 87:
+			animations[i].length = 6;
+			break;
 		default:
 			animations[i].active = 0;
 			animations[i].x = 0;
 			animations[i].y = 0;
 			animations[i].length = 0;
 			animations[i].dir = 0;
-			printf("\nNo action to be done");
 			break;
 			
 	}
@@ -340,12 +348,24 @@ void addAnimation(int x, int y, int numOfBeginning, ANIMATION animations[]){
 	
 }
 
-unsigned char playerInteraction(PLAYER * player, MAP map, ANIMATION animations[], unsigned char currentMap){
+unsigned char playerInteraction(PLAYER * player, MAP * map, ANIMATION animations[], unsigned char currentMap){
 	unsigned char initialMap = currentMap;
 	unsigned char x = (player -> x + player -> w/2)/SCALE, y = (player -> y + player -> h/2)/SCALE;
-	unsigned char image = map.walls[y][x];
+	unsigned char image = map -> walls[y][x];
 	unsigned char playerDestinationX = x, playerDestinationY = y;
 	switch (image) {
+		case 196:
+		case 206:
+		case 216:
+		case 226:
+		case 236:
+			if (player -> image - 1 == image) {
+				player -> rocks[image / 10 - 19] = 1;
+			}
+			break;
+		case 147:
+			map -> walls[y][x] = EMPTY;
+			break;
 		case 46:
 		case 8:
 		case 9:
@@ -360,19 +380,41 @@ unsigned char playerInteraction(PLAYER * player, MAP map, ANIMATION animations[]
 		case 149:
 			break;
 		case 6:
-			if (initialMap == 0){
-				if (x == 19 && y == 19) {
-					currentMap = 5;
-					playerDestinationY = 1;
-					playerDestinationX = 2;
-				}
-			}else if(initialMap == 5){
-				if (x == 2 && y == 1) {
-					currentMap = 0;
-					playerDestinationY = 19;
-					playerDestinationX = 19;
-				}
+			switch (initialMap) {
+				case 0:
+					if (x == 19 && y == 19) {
+						currentMap = 5;
+						playerDestinationY = 1;
+						playerDestinationX = 2;
+					}
+					break;
+				case 5:
+					if (y == 1){
+						if (x == 2) {
+							currentMap = 0;
+							playerDestinationY = 19;
+							playerDestinationX = 19;
+						}else if (x == 9){
+							playerDestinationY = 6;
+							playerDestinationX = 18;
+						}else if (x == 17){
+							playerDestinationY = 13;
+							playerDestinationX = 1;
+						}else{
+							playerDestinationY = 19;
+							playerDestinationX = 18;
+						}
+						
+					}else if ((y == 6 && x == 22) || (y == 13 && x == 5) || (y == 19 && x == 22)) {
+						playerDestinationY = 1;
+						playerDestinationX = 22;
+					}
+					break;
+					
+				default:
+					break;
 			}
+			break;
 		case 139:
 			if (initialMap == 0){
 				if (x == 3 && y == 17) {
@@ -423,15 +465,22 @@ unsigned char playerInteraction(PLAYER * player, MAP map, ANIMATION animations[]
 				default:
 					break;
 			}
+		case 87:
+			switch (initialMap) {
+				case 1:
+					break;
+				default:
+					addAnimation(x, y, image, animations);
+					break;
+			}
 			
 		default:
 			addAnimation(x, y, image, animations);
 			break;
 	}
-	if(initialMap != currentMap){
+	if(initialMap != currentMap || x != playerDestinationX || y != playerDestinationY){
 		player -> x = playerDestinationX * SCALE + SCALE / 8;
 		player -> y = playerDestinationY * SCALE;
-		
 	}
 	return currentMap;
 
@@ -755,6 +804,10 @@ void initializePlayer(PLAYER * player) {
     player -> y_dir = 0;
     player -> speed = 5;
     player -> image = 197;
+	for (int i = 0; i < 5; i++) {
+		player -> rocks[i] =0;
+	}
+	
 }
 
 BOX newBox(int x, int y){
@@ -793,7 +846,7 @@ void initializeAnimations(ANIMATION animations[], int num){
 	}
 }
 
-void createMenu(MAP maps[], char dir[]){
+void createMaps(MAP maps[], char dir[]){
 	int count = 0;
 	while (dir[count] != '\0') {
 		count ++;

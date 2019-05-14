@@ -26,6 +26,7 @@ typedef struct{
     char x_dir;
     char y_dir;
     unsigned char image;
+    unsigned char rocks[5];
 }PLAYER;
 
 //maps

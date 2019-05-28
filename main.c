@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 	
 	BOX boxes[6];
 	boxes[0] = newBox(11,21);
-	boxes[1] = newBox(10,14);
+	boxes[1] = newBox(9,14);
 	boxes[2] = newBox(5,3);
 	boxes[3] = newBox(4,5);
 	boxes[4] = newBox(-10,-10);
@@ -235,8 +235,8 @@ int main(int argc, char* argv[]) {
 				if (maps[currentMap].walls[2][1] == 5) {
 					player.image = 197;
 				}
-				if (boxes[currentMap].x / SCALE == 2 && boxes[currentMap].y /SCALE == 8 && maps[currentMap].walls[12][2] == 87) {
-					addAnimation(2, 12, 87, animations);
+				if (boxes[currentMap].x / SCALE == 2 && boxes[currentMap].y /SCALE == 8 && maps[currentMap].walls[12][2] == 219) {
+					maps[currentMap].walls[12][2] = 87;
 				}
 				if (maps[currentMap].walls[12][2] == 127) {
 					maps[currentMap].walls[12][3] = 196;
@@ -246,13 +246,14 @@ int main(int argc, char* argv[]) {
 				}
 				if (maps[currentMap].walls[8][7] == 35) {
 					maps[currentMap].walls[8][6] = (maps[currentMap].walls[8][6] == EMPTY) ? 86: EMPTY;
-					maps[currentMap].walls[14][9] = (maps[currentMap].walls[14][9] == EMPTY) ? 86: EMPTY;
-					maps[currentMap].walls[10][6] = (maps[currentMap].walls[10][6] == EMPTY) ? 86: EMPTY;
-					maps[currentMap].walls[10][10] = (maps[currentMap].walls[10][10] == EMPTY) ? 86: EMPTY;
+					maps[currentMap].walls[13][7] = (maps[currentMap].walls[13][7] == EMPTY) ? 86: EMPTY;
+					maps[currentMap].walls[11][10] = (maps[currentMap].walls[11][10] == EMPTY) ? 86: EMPTY;
+//					maps[currentMap].walls[10][10] = (maps[currentMap].walls[10][10] == EMPTY) ? 86: EMPTY;
 				}
 				if (maps[currentMap].walls[17][13] == 35) {
-					maps[currentMap].walls[9][11] = (maps[currentMap].walls[9][11] == EMPTY) ? 106: EMPTY;
-					maps[currentMap].walls[15][7] = (maps[currentMap].walls[15][7] == EMPTY) ? 106: EMPTY;
+					maps[currentMap].walls[10][5] = (maps[currentMap].walls[10][5] == EMPTY) ? 106: EMPTY;
+                    maps[currentMap].walls[12][7] = (maps[currentMap].walls[12][7] == EMPTY) ? 106: EMPTY;
+					maps[currentMap].walls[11][13] = (maps[currentMap].walls[11][13] == EMPTY) ? 106: EMPTY;
 					maps[currentMap].walls[17][12] = (maps[currentMap].walls[17][12] == EMPTY) ? 106: EMPTY;
 				}
 				break;
@@ -261,15 +262,16 @@ int main(int argc, char* argv[]) {
 					player.image = 217;
 				}
 				if (maps[currentMap].walls[15][16] == 35) {
-					maps[currentMap].walls[8][15] = (maps[currentMap].walls[8][15] == EMPTY) ? 186: EMPTY;
+					maps[currentMap].walls[7][15] = (maps[currentMap].walls[7][15] == EMPTY) ? 186: EMPTY;
 					maps[currentMap].walls[11][10] = (maps[currentMap].walls[11][10] == EMPTY) ? 186: EMPTY;
-					maps[currentMap].walls[10][5] = (maps[currentMap].walls[10][5] == EMPTY) ? 186: EMPTY;
+					maps[currentMap].walls[10][6] = (maps[currentMap].walls[10][6] == EMPTY) ? 186: EMPTY;
 					maps[currentMap].walls[15][17] = (maps[currentMap].walls[15][17] == EMPTY) ? 186: EMPTY;
 				}
 				if (maps[currentMap].walls[6][13] == 35) {
 					maps[currentMap].walls[4][10] = (maps[currentMap].walls[4][10] == EMPTY) ? 176: EMPTY;
 					maps[currentMap].walls[6][14] = (maps[currentMap].walls[6][14] == EMPTY) ? 176: EMPTY;
-					maps[currentMap].walls[3][13] = (maps[currentMap].walls[3][13] == EMPTY) ? 176: EMPTY;
+					maps[currentMap].walls[9][15] = (maps[currentMap].walls[9][15] == EMPTY) ? 176: EMPTY;
+                    maps[currentMap].walls[9][5] = (maps[currentMap].walls[9][5] == EMPTY) ? 176: EMPTY;
 				}
 				if (boxes[currentMap].x / SCALE == 1 && boxes[currentMap].y /SCALE == 7 && maps[currentMap].walls[10][1] == 10) {
 					maps[currentMap].walls[10][0] = 21;

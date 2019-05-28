@@ -738,7 +738,6 @@ void updateBox(BOX * box, PLAYER * player, MAP map, SDL_Rect shapes[]){
     unsigned char move = 1;
     int x, y;
     contact = player_box_contact(player, box, shapes);
-	//printf("\n%d, %d", contact, box -> movable);
     if (contact) {
         if (box -> movable) {
             x = (box -> x+10 * player -> x_dir * player -> speed)/SCALE;
@@ -847,77 +846,73 @@ void initializeAnimations(ANIMATION animations[], int num){
 }
 
 void createMaps(MAP maps[], char dir[]){
-	int count = 0;
-	while (dir[count] != '\0') {
-		count ++;
-	}
-	int i=count;
-	while (dir[i] != '/' && dir[i] != '\\') {
-		dir[i] = '\0';
-		i--;
-	}
-	printf("%s\n", dir);
+    int count = 0;
+    while (dir[count] != '\0') {
+        count ++;
+    }
+    while (dir[count] != '/' && dir[count] != '\\') {
+        dir[count] = '\0';
+        count--;
+    }
 
 	char filePath[255];
 	strcpy(filePath, dir);
-	strcat(filePath, "resources/game_menu.csv");
+	strcat(filePath, "resources/levels.csv");
 	FILE * file = fopen(filePath, "r");
 	char line[256];
 
 	if(file != NULL){
-		int w = 0;
-		int v = -1;
+		int row = 0;
+		int map = -1;
 		while (fgets(line, 256, file)){
-			if (line[0] == '-' || v == -1){
-				w = 0;
-				v++;
-				maps[v].mapSize = 24;
+			if (line[0] == '-' || map == -1){
+				row = 0;
+				map++;
+				maps[map].mapSize = 24;
 			}
 			
-			int piece[maps[v].mapSize];
-			char num[5];
-			i = 0;
-			int j = 0;
-			int k = 0;
-			while(line[i] != '\n' && line[i] != '-'){
-				if (line[i] == ',' ) {
-					j = - 1;
+			int columns[maps[map].mapSize];
+			char num[6];
+			int index = 0;
+			int numIndex = 0;
+			int destination = 0;
+            
+			while(line[index] != '\n' && line[index] != '-'){
+				if (line[index] == ',' ) {
+					numIndex = 0;
+                    columns[destination] = atoi(num);
+                    destination++;
 				}else{
-					if ((j==0 && i != 0) || line[i+1] == '\n') {
-						piece[k] = atoi(num);
-						k++;
-					}
-					num[j] = line[i];
-					num[j+1] = '\0';
+					num[numIndex] = line[index];
+					num[numIndex+1] = '\0';
+                    numIndex++;
 				}
-				j++;
-				i++;
+				index++;
 			}
-
-			if (line[i] != '-') {
-				for (int l = 0; l < maps[v].mapSize; l++) {
-					maps[v].walls[w][l] = piece[l];
+            columns[destination] = atoi(num);
+			if (line[index] != '-') {
+				for (int l = 0; l < maps[map].mapSize; l++) {
+					maps[map].walls[row][l] = columns[l];
 				}
-				w++;
+				row++;
 			}
 		}
 	}else{
-		printf("ERROR: Unable to read CSV File \"resources/menu.csv\"");
+		printf("ERROR: Unable to read CSV File \"resources/levels.csv\"");
 	}
 	fclose(file);
 }
 
 void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
-	printf("%s\n", dir);
-	int count = 0;
-	while (dir[count] != '\0') {
-		count ++;
-	}
-	int i=count;
-	while (dir[i] != '/' && dir[i] != '\\') {
-		dir[i] = '\0';
-		i--;
-	}
+    int count = 0;
+    while (dir[count] != '\0') {
+        count ++;
+    }
+    while (dir[count] != '/' && dir[count] != '\\') {
+        dir[count] = '\0';
+        count--;
+    }
+    
 	char filePath[255];
 	strcpy(filePath, dir);
 	strcat(filePath, "resources/game_hitbox.csv");
@@ -928,7 +923,7 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 		while (fgets(line, 256, file)){
 			int piece[6];
 			char num[5];
-			i = 0;
+			int i = 0;
 			int j = 0;
 			int k = 0;
 			while(line[i] != '\n'){

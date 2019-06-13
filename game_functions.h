@@ -382,18 +382,18 @@ unsigned char playerInteraction(PLAYER * player, MAP * map, ANIMATION animations
 		case 6:
 			switch (initialMap) {
 				case 0:
-					if (x == 19 && y == 19) {
-						currentMap = 5;
+					if (x == 6 && y == 20) {
+						currentMap = 4;
 						playerDestinationY = 1;
 						playerDestinationX = 2;
 					}
 					break;
-				case 5:
+				case 4:
 					if (y == 1){
 						if (x == 2) {
 							currentMap = 0;
-							playerDestinationY = 19;
-							playerDestinationX = 19;
+							playerDestinationY = 20;
+							playerDestinationX = 6;
 						}else if (x == 9){
 							playerDestinationY = 6;
 							playerDestinationX = 18;
@@ -417,29 +417,31 @@ unsigned char playerInteraction(PLAYER * player, MAP * map, ANIMATION animations
 			break;
 		case 139:
 			if (initialMap == 0){
-				if (x == 3 && y == 17) {
-					currentMap = 4;
+				if (x == 21 && y == 20) {
+					currentMap = 5;
 					playerDestinationY = 1;
 					playerDestinationX = 2;
 				}
-			}else if(initialMap == 4){
+			}else if(initialMap == 5){
 				if (x == 2 && y == 1) {
 					currentMap = 0;
-					playerDestinationY = 17;
-					playerDestinationX = 3;
+					playerDestinationY = 20;
+					playerDestinationX = 21;
 				}
 			}
 			break;
 		case 77:
 			switch (initialMap) {
 				case 0:
-					if (x == 2 && y == 1) {
+					if (x == 16 && y == 1) {
 						currentMap = 1;
-					}else if (x == 2 && y == 10) {
-						currentMap = 2;
-						playerDestinationY = 1;
-					}else if (x == 22 && y == 3) {
+                        playerDestinationX = 2;
+                        playerDestinationY = 1;
+					}else if (x == 2 && y == 14) {
 						currentMap = 3;
+						playerDestinationY = 1;
+					}else if (x == 21 && y == 8) {
+						currentMap = 2;
 						playerDestinationY = 1;
 						playerDestinationX = 2;
 					}
@@ -447,32 +449,30 @@ unsigned char playerInteraction(PLAYER * player, MAP * map, ANIMATION animations
 				case 1:
 					if (x == 2 && y == 1) {
 						currentMap = 0;
+                        playerDestinationX = 16;
+                        playerDestinationY = 1;
 					}
 					break;
 				case 2:
 					if (x == 2 && y == 1) {
 						currentMap = 0;
-						playerDestinationY = 10;
+						playerDestinationY = 8 ;
+						playerDestinationX = 21;
 					}
-					break;
-				case 3:
-					if (x == 2 && y == 1) {
-						currentMap = 0;
-						playerDestinationY = 3;
-						playerDestinationX = 22;
-					}
+                    break;
+                case 3:
+                    if (x == 2 && y == 1) {
+                        currentMap = 0;
+                        playerDestinationY = 14;
+                    }
 					break;
 				default:
 					break;
 			}
 		case 87:
-			switch (initialMap) {
-				case 1:
-					break;
-				default:
-					addAnimation(x, y, image, animations);
-					break;
-			}
+            if(initialMap != 1){
+             addAnimation(x, y, image, animations);
+            }
 			
 		default:
 			addAnimation(x, y, image, animations);
@@ -509,14 +509,14 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
     y2 = user.y + user.h;
     y3 = user.y + user.h * 2;
     
-    int xy[10][2] = {
-        {x2,y1}, {x3,y1},
+    int xy[12][2] = {
+        {x1,y1}, {x2,y1}, {x3,y1}, {x4,y1},
         {x1,y2}, {x2,y2}, {x3,y2}, {x4,y2},
         {x1,y3}, {x2,y3}, {x3,y3}, {x4,y3}
     };
-	
-    SDL_Rect rect[10];
-    for (int i= 0;i<10;i++){
+    
+    SDL_Rect rect[12];
+    for (int i= 0;i<12;i++){
         int x = xy[i][0], y = xy[i][1];
         int numOfPiece = map.walls[y/SCALE][x/SCALE];
         
@@ -534,37 +534,42 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
             rect[i].y += y/SCALE * SCALE;
         }
     }
-	
-	SDL_Rect playerHitBox;
-	playerHitBox.x = user.x;
-	playerHitBox.y = user.y + 7 * SCALE/8;
-	playerHitBox.w = user.w;
-	playerHitBox.h = SCALE / 8;
-	
-	SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
-	SDL_RenderDrawRects(rend, rect, 10);
-	
-	SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
+    
+    SDL_Rect playerHitBox;
+    playerHitBox.x = user.x;
+    playerHitBox.y = user.y + 7 * SCALE/8;
+    playerHitBox.w = user.w;
+    playerHitBox.h = SCALE / 8;
+    
+    SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+    SDL_RenderDrawRects(rend, rect, 10);
+    
+    SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
     
     //change the position of the player based on direction.
     switch (user.x_dir){
         case 1:
             //check if by moving right it is now inside a place it shouldn't be before moving
-            if (!isPointInsideRect(x3 + user.speed, y2, rect[4]) &&
-                !isPointInsideRect(x3 + user.speed, y2, rect[5]) &&
-                !isPointInsideRect(x3 + user.speed, y2, rect[8]) &&
-                !isPointInsideRect(x3 + user.speed, y2, rect[9])){
-                user.x += user.speed;
+            playerHitBox.x += user.speed;
+            if (rectIsInsideRect(playerHitBox, rect[2]) ||
+                rectIsInsideRect(playerHitBox, rect[3]) ||
+                rectIsInsideRect(playerHitBox, rect[6]) ||
+                rectIsInsideRect(playerHitBox, rect[7]) ||
+                rectIsInsideRect(playerHitBox, rect[10]) ||
+                rectIsInsideRect(playerHitBox, rect[11])) {
+                playerHitBox.x -= user.speed;
             }
             break;
         case -1:
             //check if by moving right it is now inside a place it shouldn't be before moving
-            if (!isPointInsideRect(x2 - user.speed, y2, rect[2]) &&
-                !isPointInsideRect(x2 - user.speed, y2, rect[3]) &&
-                !isPointInsideRect(x2 - user.speed, y2, rect[6]) &&
-                !isPointInsideRect(x2 - user.speed, y2, rect[7])
-                ){
-                user.x -= user.speed;
+            playerHitBox.x -= user.speed;
+            if (rectIsInsideRect(playerHitBox, rect[0]) ||
+                rectIsInsideRect(playerHitBox, rect[1]) ||
+                rectIsInsideRect(playerHitBox, rect[4]) ||
+                rectIsInsideRect(playerHitBox, rect[5]) ||
+                rectIsInsideRect(playerHitBox, rect[8]) ||
+                rectIsInsideRect(playerHitBox, rect[9])) {
+                playerHitBox.x += user.speed;
             }
             break;
     }
@@ -572,142 +577,36 @@ PLAYER updatePlayer(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend
     switch (user.y_dir){
         case 1:
             //check if by moving down it is now inside a place it shouldn't be before moving
-            if (!isLineInsideRect(y2 + user.speed, x2, x3, rect[2]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[3]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[4]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[5]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[6]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[7]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[8]) &&
-                !isLineInsideRect(y2 + user.speed, x2, x3, rect[9])) {
-                user.y += user.speed;
+            playerHitBox.y += user.speed;
+            if (rectIsInsideRect(playerHitBox, rect[4]) ||
+                rectIsInsideRect(playerHitBox, rect[5]) ||
+                rectIsInsideRect(playerHitBox, rect[6]) ||
+                rectIsInsideRect(playerHitBox, rect[7]) ||
+                rectIsInsideRect(playerHitBox, rect[8]) ||
+                rectIsInsideRect(playerHitBox, rect[9]) ||
+                rectIsInsideRect(playerHitBox, rect[10]) ||
+                rectIsInsideRect(playerHitBox, rect[11])) {
+                playerHitBox.y -= user.speed;
             }
             break;
         case -1:
             //check if by moving up it is now inside a place it shouldn't be before moving
-            if (!isLineInsideRect(y2 - user.speed, x2, x3, rect[0]) &&
-                !isLineInsideRect(y2 - user.speed, x2, x3, rect[1]) &&
-                !isLineInsideRect(y2 - user.speed, x2, x3, rect[2]) &&
-                !isLineInsideRect(y2 - user.speed, x2, x3, rect[3]) &&
-                !isLineInsideRect(y2 - user.speed, x2, x3, rect[4]) &&
-                !isLineInsideRect(y2 - user.speed, x2, x3, rect[5])) {
-                user.y -= user.speed;
+            playerHitBox.y -= user.speed;
+            if (rectIsInsideRect(playerHitBox, rect[0]) ||
+                rectIsInsideRect(playerHitBox, rect[1]) ||
+                rectIsInsideRect(playerHitBox, rect[2]) ||
+                rectIsInsideRect(playerHitBox, rect[3]) ||
+                rectIsInsideRect(playerHitBox, rect[4]) ||
+                rectIsInsideRect(playerHitBox, rect[5]) ||
+                rectIsInsideRect(playerHitBox, rect[6]) ||
+                rectIsInsideRect(playerHitBox, rect[7])) {
+                playerHitBox.y += user.speed;
             }
             break;
     }
-    return user;
-}
-
-PLAYER updatePlayer2(PLAYER user, MAP map, SDL_Rect shapes[], SDL_Renderer * rend) {
-	int x1, x2, x3, x4, y1, y2, y3;
-	x1 = user.x - user.w;
-	x2 = user.x;
-	x3 = user.x + user.w;
-	x4 = user.x + user.w * 2;
-	
-	y1 = user.y;
-	y2 = user.y + user.h;
-	y3 = user.y + user.h * 2;
-	
-	int xy[12][2] = {
-		{x1,y1}, {x2,y1}, {x3,y1}, {x4,y1},
-		{x1,y2}, {x2,y2}, {x3,y2}, {x4,y2},
-		{x1,y3}, {x2,y3}, {x3,y3}, {x4,y3}
-	};
-	
-	SDL_Rect rect[12];
-	for (int i= 0;i<12;i++){
-		int x = xy[i][0], y = xy[i][1];
-		int numOfPiece = map.walls[y/SCALE][x/SCALE];
-		
-		if (shapes[numOfPiece].w==0) {
-			rect[i].x = 0;
-			rect[i].y = 0;
-			rect[i].w = 0;
-			rect[i].h = 0;
-		}else{
-			rect[i].x = shapes[numOfPiece].x;
-			rect[i].y = shapes[numOfPiece].y;
-			rect[i].w = shapes[numOfPiece].w;
-			rect[i].h = shapes[numOfPiece].h;
-			rect[i].x += x/SCALE * SCALE;
-			rect[i].y += y/SCALE * SCALE;
-		}
-	}
-	
-	SDL_Rect playerHitBox;
-	playerHitBox.x = user.x;
-	playerHitBox.y = user.y + 7 * SCALE/8;
-	playerHitBox.w = user.w;
-	playerHitBox.h = SCALE / 8;
-	
-	SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
-	SDL_RenderDrawRects(rend, rect, 10);
-	
-	SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
-	
-	//change the position of the player based on direction.
-	switch (user.x_dir){
-		case 1:
-			//check if by moving right it is now inside a place it shouldn't be before moving
-			playerHitBox.x += user.speed;
-			if (rectIsInsideRect(playerHitBox, rect[2]) ||
-				rectIsInsideRect(playerHitBox, rect[3]) ||
-				rectIsInsideRect(playerHitBox, rect[6]) ||
-				rectIsInsideRect(playerHitBox, rect[7]) ||
-				rectIsInsideRect(playerHitBox, rect[10]) ||
-				rectIsInsideRect(playerHitBox, rect[11])) {
-				playerHitBox.x -= user.speed;
-			}
-			break;
-		case -1:
-			//check if by moving right it is now inside a place it shouldn't be before moving
-			playerHitBox.x -= user.speed;
-			if (rectIsInsideRect(playerHitBox, rect[0]) ||
-				rectIsInsideRect(playerHitBox, rect[1]) ||
-				rectIsInsideRect(playerHitBox, rect[4]) ||
-				rectIsInsideRect(playerHitBox, rect[5]) ||
-				rectIsInsideRect(playerHitBox, rect[8]) ||
-				rectIsInsideRect(playerHitBox, rect[9])) {
-				playerHitBox.x += user.speed;
-			}
-			break;
-	}
-	
-	switch (user.y_dir){
-		case 1:
-			//check if by moving down it is now inside a place it shouldn't be before moving
-			playerHitBox.y += user.speed;
-			if (rectIsInsideRect(playerHitBox, rect[4]) ||
-				rectIsInsideRect(playerHitBox, rect[5]) ||
-				rectIsInsideRect(playerHitBox, rect[6]) ||
-				rectIsInsideRect(playerHitBox, rect[7]) ||
-				rectIsInsideRect(playerHitBox, rect[8]) ||
-				rectIsInsideRect(playerHitBox, rect[9]) ||
-				rectIsInsideRect(playerHitBox, rect[10]) ||
-				rectIsInsideRect(playerHitBox, rect[11])) {
-				playerHitBox.y -= user.speed;
-			}
-			break;
-		case -1:
-			//check if by moving up it is now inside a place it shouldn't be before moving
-			playerHitBox.y -= user.speed;
-			if (rectIsInsideRect(playerHitBox, rect[0]) ||
-				rectIsInsideRect(playerHitBox, rect[1]) ||
-				rectIsInsideRect(playerHitBox, rect[2]) ||
-				rectIsInsideRect(playerHitBox, rect[3]) ||
-				rectIsInsideRect(playerHitBox, rect[4]) ||
-				rectIsInsideRect(playerHitBox, rect[5]) ||
-				rectIsInsideRect(playerHitBox, rect[6]) ||
-				rectIsInsideRect(playerHitBox, rect[7])) {
-				playerHitBox.y += user.speed;
-			}
-			break;
-	}
-	user.x = playerHitBox.x;
-	user.y = playerHitBox.y - 7 * SCALE / 8;
-	return user;
-}
+    user.x = playerHitBox.x;
+    user.y = playerHitBox.y - 7 * SCALE / 8;
+    return user;}
 
 unsigned char player_box_contact(PLAYER * player, BOX * box, SDL_Rect shapes[]) {
 	SDL_Rect box_rect, player_rect;
@@ -735,29 +634,54 @@ unsigned char player_box_contact(PLAYER * player, BOX * box, SDL_Rect shapes[]) 
 
 void updateBox(BOX * box, PLAYER * player, MAP map, SDL_Rect shapes[]){
     unsigned char contact = 0;
-    unsigned char move = 1;
-    int x, y;
+    unsigned char move_x = 1, move_y = 1;
     contact = player_box_contact(player, box, shapes);
     if (contact) {
         if (box -> movable) {
-            x = (box -> x+10 * player -> x_dir * player -> speed)/SCALE;
-            y = (box -> y+10 * player -> y_dir * player -> speed)/SCALE;
-            if(map.walls[y][x] != EMPTY && map.walls[y][x] != 178 && map.walls[y][x] != 188 &&
-			   map.walls[y][x] != 179 && map.walls[y][x] != 189){
-                move = 0;
+            int x[2] = {(box -> x + shapes[box -> image].x), (box -> x + shapes[box -> image].x + shapes[box -> image].w)};
+            int y[2] = {(box -> y + shapes[box -> image].y), (box -> y + shapes[box -> image].y + shapes[box -> image].h)};
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    int present_x = x[i]/SCALE;
+                    int present_y = y[i]/SCALE;
+                    int future_x = (x[j] + player -> x_dir * player -> speed) / SCALE;
+                    int future_y = (y[j] + player -> y_dir * player -> speed) / SCALE;
+                    if(map.walls[present_y][future_x] != EMPTY &&
+                       map.walls[present_y][future_x] != 178 &&
+                       map.walls[present_y][future_x] != 188 &&
+                       map.walls[present_y][future_x] != 179 &&
+                       map.walls[present_y][future_x] != 189){
+                        move_x = 0;
+                    }
+                    if(map.walls[future_y][present_x] != EMPTY &&
+                       map.walls[future_y][present_x] != 178 &&
+                       map.walls[future_y][present_x] != 188 &&
+                       map.walls[future_y][present_x] != 179 &&
+                       map.walls[future_y][present_x] != 189){
+                        move_y = 0;
+                    }
+                }
             }
-        } else {
-            move = 0;
-        }
-        
-        if (move) {
-            box -> x += 10 * player -> x_dir * player -> speed;
-            box -> y += 10 * player -> y_dir * player -> speed;
             
         } else {
+            move_x = 0;
+            move_y = 0;
+        }
+        
+        
+        
+        if (move_x) {
+            box -> x += player -> x_dir * player -> speed;
+        } else {
             player -> x -= player -> x_dir * player -> speed;
+        }
+        
+        if (move_y) {
+            box -> y += player -> y_dir * player -> speed;
+        } else {
             player -> y -= player -> y_dir * player -> speed;
         }
+        
     }
 }
 
@@ -795,8 +719,8 @@ void updateScreen(SCREEN *screen, PLAYER user, MAP map){
 //Initialization functions
 
 void initializePlayer(PLAYER * player) {
-    player -> x = 3 * SCALE;
-    player -> y = 3 * SCALE;
+    player -> x = 2 * SCALE;
+    player -> y = 1 * SCALE;
     player -> h = 1 * SCALE;
     player -> w = 3 * SCALE / 4;
     player -> x_dir = 0;
@@ -877,7 +801,7 @@ void createMaps(MAP maps[], char dir[]){
 			int numIndex = 0;
 			int destination = 0;
             
-			while(line[index] != '\n' && line[index] != '-'){
+			while(line[index] != '\n' && line[index] != '-' && destination < 24){
 				if (line[index] == ',' ) {
 					numIndex = 0;
                     columns[destination] = atoi(num);
@@ -951,7 +875,6 @@ void initializeShapesRect(SDL_Rect arrayRects[], char dir[]){
 
 	}
 	fclose(file);
-
 }
 
 #endif /* game_functions_h */

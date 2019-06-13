@@ -91,10 +91,10 @@ int main(int argc, char* argv[]) {
 	initializePlayer(&player);
 	
 	BOX boxes[6];
-	boxes[0] = newBox(11,21);
-	boxes[1] = newBox(9,14);
-	boxes[2] = newBox(5,3);
-	boxes[3] = newBox(4,5);
+	boxes[0] = newBox(2,3);
+	boxes[1] = newBox(9,15);
+	boxes[2] = newBox(2,5);
+	boxes[3] = newBox(5,3);
 	boxes[4] = newBox(-10,-10);
 	boxes[5] = newBox(-10,-10);
 	
@@ -104,7 +104,6 @@ int main(int argc, char* argv[]) {
 	SCREEN screen;
 
 	int ticks_delay = 1000 / 60;
-	unsigned char frames = 0;
 	
 	char close_requested = 0;
 	SDL_Event event;
@@ -196,211 +195,298 @@ int main(int argc, char* argv[]) {
 		//clear the window
 		SDL_RenderClear(rend);
 		
-		//matemachicken stuff
-		frames++;
-		player = updatePlayer2(player, maps[currentMap], shapes, rend);
-		
+		//operations
+		player = updatePlayer(player, maps[currentMap], shapes, rend);
 		updateBox(&boxes[currentMap], &player, maps[currentMap], shapes);
 		updateAnimations(animations, 20, &maps[currentMap]);
 		updateScreen(&screen,player,maps[currentMap]);
 		
 		switch (currentMap) {
 			case 0:
-				if (maps[currentMap].walls[20][18] == 5 && maps[currentMap].walls[19][19] == 46) {
-					addAnimation(19, 19, 46, animations);
+
+                //open the path when the box is in the right place
+                if (boxes[currentMap].x > 435 && boxes[currentMap].x < 460 &&
+                    boxes[currentMap].y > 230 && boxes[currentMap].y < 240 &&
+                    maps[currentMap].walls[1][6] == 1) {
+                    maps[currentMap].walls[1][6] = 2;
+                    maps[currentMap].walls[1][7] = 22;
+                    maps[currentMap].walls[2][6] = EMPTY;
+                    maps[currentMap].walls[2][7] = EMPTY;
+                    maps[currentMap].walls[3][6] = EMPTY;
+                    maps[currentMap].walls[3][7] = EMPTY;
+                    maps[currentMap].walls[4][6] = 0;
+                    maps[currentMap].walls[4][7] = 20;
+                    boxes[currentMap].movable = 0;
+                }
+                
+                //switch to clear the first path
+                if (maps[currentMap].walls[1][10] == 35) {
+                    maps[currentMap].walls[1][11] = (maps[currentMap].walls[1][11] == EMPTY) ? 86: EMPTY;
+                    maps[currentMap].walls[3][14] = (maps[currentMap].walls[3][14] == EMPTY) ? 86: EMPTY;
+                }
+                
+                //switch to open the door of lvl 4
+				if (maps[currentMap].walls[21][5] == 5 && maps[currentMap].walls[20][6] == 46) {
+					addAnimation(6, 20, 46, animations);
+				}else if (maps[currentMap].walls[21][5] == 65 && maps[currentMap].walls[20][6] == 6) {
+					addAnimation(6, 20, 6, animations);
 				}
-				
-				if (maps[currentMap].walls[20][18] == 65 && maps[currentMap].walls[19][19] == 6) {
-					addAnimation(19, 19, 6, animations);
-				}
-				
-				if (boxes[currentMap].x / SCALE == 1 && boxes[currentMap].y /SCALE == 20 && maps[currentMap].walls[17][3] == 19) {
-					addAnimation(2, 16, 8, animations);
-					addAnimation(2, 17, 9, animations);
-					addAnimation(3, 16, 18, animations);
-					addAnimation(3, 17, 19, animations);
-					addAnimation(4, 16, 28, animations);
-					addAnimation(4, 17, 29, animations);
-				}
-				if((boxes[currentMap].x / SCALE != 1 || boxes[currentMap].y /SCALE != 20) && maps[currentMap].walls[17][3] == 139){
-					addAnimation(2, 16, 128, animations);
-					addAnimation(2, 17, 129, animations);
-					addAnimation(3, 16, 138, animations);
-					addAnimation(3, 17, 139, animations);
-					addAnimation(4, 16, 148, animations);
-					addAnimation(4, 17, 149, animations);
-				}
+                
+                //switch to open the door of lvl 5
+                if (maps[currentMap].walls[21][19] == 5 && maps[currentMap].walls[20][20] == 9) {
+                    addAnimation(20, 19, 8, animations);
+                    addAnimation(20, 20, 9, animations);
+                    addAnimation(21, 19, 18, animations);
+                    addAnimation(21, 20, 19, animations);
+                    addAnimation(22, 19, 28, animations);
+                    addAnimation(22, 20, 29, animations);
+                }else if (maps[currentMap].walls[21][19] == 65 && maps[currentMap].walls[20][20] == 129) {
+                    addAnimation(20, 19, 128, animations);
+                    addAnimation(20, 20, 129, animations);
+                    addAnimation(21, 19, 138, animations);
+                    addAnimation(21, 20, 139, animations);
+                    addAnimation(22, 19, 148, animations);
+                    addAnimation(22, 20, 149, animations);
+                }
+                
 				break;
 			case 1:
-				if (maps[currentMap].walls[2][1] == 5) {
+                //switch to change color back to blue
+				if (maps[currentMap].walls[2][1] == 35) {
 					player.image = 197;
 				}
-				if (boxes[currentMap].x / SCALE == 2 && boxes[currentMap].y /SCALE == 8 && maps[currentMap].walls[12][2] == 219) {
-					maps[currentMap].walls[12][2] = 87;
-				}
-				if (maps[currentMap].walls[12][2] == 127) {
-					maps[currentMap].walls[12][3] = 196;
-				}
-				if (maps[currentMap].walls[12][3] == 196 && player.rocks[0] == 1) {
-					maps[currentMap].walls[12][3] = EMPTY;
-				}
-				if (maps[currentMap].walls[8][7] == 35) {
-					maps[currentMap].walls[8][6] = (maps[currentMap].walls[8][6] == EMPTY) ? 86: EMPTY;
-					maps[currentMap].walls[13][7] = (maps[currentMap].walls[13][7] == EMPTY) ? 86: EMPTY;
-					maps[currentMap].walls[11][10] = (maps[currentMap].walls[11][10] == EMPTY) ? 86: EMPTY;
-//					maps[currentMap].walls[10][10] = (maps[currentMap].walls[10][10] == EMPTY) ? 86: EMPTY;
-				}
-				if (maps[currentMap].walls[17][13] == 35) {
-					maps[currentMap].walls[10][5] = (maps[currentMap].walls[10][5] == EMPTY) ? 106: EMPTY;
-                    maps[currentMap].walls[12][7] = (maps[currentMap].walls[12][7] == EMPTY) ? 106: EMPTY;
-					maps[currentMap].walls[11][13] = (maps[currentMap].walls[11][13] == EMPTY) ? 106: EMPTY;
-					maps[currentMap].walls[17][12] = (maps[currentMap].walls[17][12] == EMPTY) ? 106: EMPTY;
+                
+                //open the path when the box is in the right place
+                if (boxes[currentMap].x > 235 && boxes[currentMap].x < 260 &&
+                    boxes[currentMap].y > 930 && boxes[currentMap].y < 940 &&
+                    maps[currentMap].walls[7][2] == 10) {
+                    maps[currentMap].walls[7][2] = EMPTY;
+                    maps[currentMap].walls[8][2] = EMPTY;
+                    maps[currentMap].walls[7][3] = EMPTY;
+                    maps[currentMap].walls[8][3] = EMPTY;
+                    maps[currentMap].walls[7][1] = 21;
+                    maps[currentMap].walls[8][1] = 22;
+                    maps[currentMap].walls[7][4] = 1;
+                    maps[currentMap].walls[8][4] = 2;
+                    boxes[currentMap].movable = 0;
+                }
+                
+                //switches to cleat the path
+                if (maps[currentMap].walls[9][7] == 35) {
+                    maps[currentMap].walls[9][6] = (maps[currentMap].walls[9][6] == EMPTY) ? 96: EMPTY;
+                    maps[currentMap].walls[14][7] = (maps[currentMap].walls[14][7] == EMPTY) ? 96: EMPTY;
+                    maps[currentMap].walls[12][10] = (maps[currentMap].walls[12][10] == EMPTY) ? 96: EMPTY;
+                }
+                
+                if (maps[currentMap].walls[19][13] == 35) {
+                    maps[currentMap].walls[11][5] = (maps[currentMap].walls[11][5] == EMPTY) ? 106: EMPTY;
+                    maps[currentMap].walls[13][7] = (maps[currentMap].walls[13][7] == EMPTY) ? 106: EMPTY;
+                    maps[currentMap].walls[12][13] = (maps[currentMap].walls[12][13] == EMPTY) ? 106: EMPTY;
+                    maps[currentMap].walls[19][12] = (maps[currentMap].walls[19][12] == EMPTY) ? 106: EMPTY;
+                }
+                
+                //drop the gem when opening
+                if (maps[currentMap].walls[6][2] == 127) {
+                    maps[currentMap].walls[6][3] = 196;
+                }
+                
+                //take the gem
+				if (maps[currentMap].walls[6][3] == 196 && player.rocks[0] == 1) {
+					maps[currentMap].walls[6][3] = EMPTY;
 				}
 				break;
+                
 			case 2:
-				if (maps[currentMap].walls[11][19] == 5) {
-					player.image = 217;
-				}
-				if (maps[currentMap].walls[15][16] == 35) {
-					maps[currentMap].walls[7][15] = (maps[currentMap].walls[7][15] == EMPTY) ? 186: EMPTY;
-					maps[currentMap].walls[11][10] = (maps[currentMap].walls[11][10] == EMPTY) ? 186: EMPTY;
-					maps[currentMap].walls[10][6] = (maps[currentMap].walls[10][6] == EMPTY) ? 186: EMPTY;
-					maps[currentMap].walls[15][17] = (maps[currentMap].walls[15][17] == EMPTY) ? 186: EMPTY;
-				}
-				if (maps[currentMap].walls[6][13] == 35) {
-					maps[currentMap].walls[4][10] = (maps[currentMap].walls[4][10] == EMPTY) ? 176: EMPTY;
-					maps[currentMap].walls[6][14] = (maps[currentMap].walls[6][14] == EMPTY) ? 176: EMPTY;
-					maps[currentMap].walls[9][15] = (maps[currentMap].walls[9][15] == EMPTY) ? 176: EMPTY;
-                    maps[currentMap].walls[9][5] = (maps[currentMap].walls[9][5] == EMPTY) ? 176: EMPTY;
-				}
-				if (boxes[currentMap].x / SCALE == 1 && boxes[currentMap].y /SCALE == 7 && maps[currentMap].walls[10][1] == 10) {
-					maps[currentMap].walls[10][0] = 21;
-					maps[currentMap].walls[11][0] = 21;
-					maps[currentMap].walls[10][1] = 219;
-					maps[currentMap].walls[11][1] = 219;
-					maps[currentMap].walls[10][2] = 219;
-					maps[currentMap].walls[11][2] = 219;
-					maps[currentMap].walls[10][3] = 0;
-					maps[currentMap].walls[11][3] = 1;
-				}
-				if (maps[currentMap].walls[16][5] == 127) {
-					maps[currentMap].walls[16][6] = 216;
-				}
-				if (maps[currentMap].walls[16][6] == 216 && player.rocks[2] == 1) {
-					maps[currentMap].walls[16][6] = EMPTY;
-				}
-				break;
+                //switch character color
+                if (maps[currentMap].walls[5][16] == 35) {
+                    player.image = 207;
+                }
+                
+                //open and close the bloked part with the box
+                if (boxes[currentMap].x > 1235 && boxes[currentMap].x < 1260 &&
+                    boxes[currentMap].y > 530 && boxes[currentMap].y < 540 &&
+                    maps[currentMap].walls[3][12] == 10) {
+                    maps[currentMap].walls[3][12] = EMPTY;
+                    maps[currentMap].walls[4][12] = EMPTY;
+                    maps[currentMap].walls[3][13] = EMPTY;
+                    maps[currentMap].walls[4][13] = EMPTY;
+                    maps[currentMap].walls[3][11] = 21;
+                    maps[currentMap].walls[4][11] = 22;
+                    maps[currentMap].walls[3][14] = 1;
+                    maps[currentMap].walls[4][14] = 2;
+                    boxes[currentMap].movable = 0;
+                }else if (!(boxes[currentMap].x > 1235 && boxes[currentMap].x < 1260 &&
+                          boxes[currentMap].y > 530 && boxes[currentMap].y < 540) &&
+                          maps[currentMap].walls[3][12] != 10){
+                    maps[currentMap].walls[3][12] = 10;
+                    maps[currentMap].walls[4][12] = 12;
+                    maps[currentMap].walls[3][13] = 10;
+                    maps[currentMap].walls[4][13] = 12;
+                    maps[currentMap].walls[3][11] = 4;
+                    maps[currentMap].walls[4][11] = 12;
+                    maps[currentMap].walls[3][14] = 14;
+                    maps[currentMap].walls[4][14] = 12;
+                }
+                
+                //switch that clears the path
+                if (maps[currentMap].walls[2][12] == 35) {
+                    maps[currentMap].walls[2][13] = (maps[currentMap].walls[2][13] == EMPTY) ? 146: EMPTY;
+                    maps[currentMap].walls[5][6] = (maps[currentMap].walls[5][6] == EMPTY) ? 146: EMPTY;
+                    maps[currentMap].walls[6][6] = (maps[currentMap].walls[6][6] == EMPTY) ? 146: EMPTY;
+                    maps[currentMap].walls[5][9] = (maps[currentMap].walls[5][9] == EMPTY) ? 146: EMPTY;
+                    maps[currentMap].walls[6][9] = (maps[currentMap].walls[6][9] == EMPTY) ? 146: EMPTY;
+                    maps[currentMap].walls[7][13] = (maps[currentMap].walls[7][13] == EMPTY) ? 146: EMPTY;
+                    boxes[currentMap].movable = 1;
+                }
+                
+                //open the path when the box is in the right place
+                if (boxes[currentMap].x > 735 && boxes[currentMap].x < 760 &&
+                    boxes[currentMap].y > 530 && boxes[currentMap].y < 540 &&
+                    maps[currentMap].walls[3][7] == 10) {
+                    maps[currentMap].walls[3][7] = EMPTY;
+                    maps[currentMap].walls[4][7] = EMPTY;
+                    maps[currentMap].walls[3][8] = EMPTY;
+                    maps[currentMap].walls[4][8] = EMPTY;
+                    maps[currentMap].walls[3][6] = 21;
+                    maps[currentMap].walls[4][6] = 22;
+                    maps[currentMap].walls[3][9] = 1;
+                    maps[currentMap].walls[4][9] = 2;
+                    boxes[currentMap].movable = 0;
+                }
+                
+                //drop the gem while opening
+                if (maps[currentMap].walls[2][7] == 127) {
+                    maps[currentMap].walls[2][8] = 206;
+                }
+                
+                //take the gem
+                if (maps[currentMap].walls[2][8] == 206 && player.rocks[1] == 1) {
+                    maps[currentMap].walls[2][8] = EMPTY;
+                }
+                break;
+				
 			case 3:
-				if (boxes[currentMap].x / SCALE == 8 && boxes[currentMap].y /SCALE == 9 && maps[currentMap].walls[8][14] == 136) {
-					maps[currentMap].walls[8][14] = EMPTY;
-					maps[currentMap].walls[8][10] = EMPTY;
-				}
-				if ((boxes[currentMap].x / SCALE != 8 || boxes[currentMap].y /SCALE != 9)&& maps[currentMap].walls[8][14] == EMPTY) {
-					maps[currentMap].walls[8][14] = 136;
-					maps[currentMap].walls[8][10] = 136;
-				}
-				if (maps[currentMap].walls[4][16] == 35) {
-					maps[currentMap].walls[4][17] = (maps[currentMap].walls[4][17] == EMPTY) ? 146: EMPTY;
-					maps[currentMap].walls[6][6] = (maps[currentMap].walls[6][6] == EMPTY) ? 146: EMPTY;
-				}
-				if (boxes[currentMap].x / SCALE == 7 && boxes[currentMap].y /SCALE == 6 && maps[currentMap].walls[4][7] == EMPTY) {
-					maps[currentMap].walls[4][7] = 87;
-				}
-				if (maps[currentMap].walls[4][7] == 127) {
-					maps[currentMap].walls[4][8] = 206;
-				}
-				if (maps[currentMap].walls[4][8] == 206 && player.rocks[1] == 1) {
-					maps[currentMap].walls[4][8] = EMPTY;
-				}
-				if (maps[currentMap].walls[13][2] == 5) {
-					player.image = 207;
-				}
-				break;
+                //switch character color
+                if (maps[currentMap].walls[11][19] == 35) {
+                    player.image = 217;
+                }
+                
+                //switch path openers
+                if (maps[currentMap].walls[15][16] == 35) {
+                    maps[currentMap].walls[7][15] = (maps[currentMap].walls[7][15] == EMPTY) ? 186: EMPTY;
+                    maps[currentMap].walls[11][10] = (maps[currentMap].walls[11][10] == EMPTY) ? 186: EMPTY;
+                    maps[currentMap].walls[10][6] = (maps[currentMap].walls[10][6] == EMPTY) ? 186: EMPTY;
+                    maps[currentMap].walls[15][17] = (maps[currentMap].walls[15][17] == EMPTY) ? 186: EMPTY;
+                }
+                if (maps[currentMap].walls[6][13] == 35) {
+                    maps[currentMap].walls[4][10] = (maps[currentMap].walls[4][10] == EMPTY) ? 176: EMPTY;
+                    maps[currentMap].walls[6][14] = (maps[currentMap].walls[6][14] == EMPTY) ? 176: EMPTY;
+                    maps[currentMap].walls[9][15] = (maps[currentMap].walls[9][15] == EMPTY) ? 176: EMPTY;
+                    maps[currentMap].walls[9][5] = (maps[currentMap].walls[9][5] == EMPTY) ? 176: EMPTY;
+                }
+                
+                //open path if the box is in the right place
+                if (boxes[currentMap].x > 135 && boxes[currentMap].x < 160 &&
+                    boxes[currentMap].y > 630 && boxes[currentMap].y < 640 &&
+                    maps[currentMap].walls[10][1] == 10) {
+                    maps[currentMap].walls[10][0] = 21;
+                    maps[currentMap].walls[11][0] = 21;
+                    maps[currentMap].walls[10][1] = 219;
+                    maps[currentMap].walls[11][1] = 219;
+                    maps[currentMap].walls[10][2] = 219;
+                    maps[currentMap].walls[11][2] = 219;
+                    maps[currentMap].walls[10][3] = 0;
+                    maps[currentMap].walls[11][3] = 1;
+                    boxes[currentMap].movable = 0;
+                }
+                
+                //drop gem while opening chest
+                if (maps[currentMap].walls[16][5] == 127) {
+                    maps[currentMap].walls[16][6] = 216;
+                }
+                
+                //grab gem
+                if (maps[currentMap].walls[16][6] == 216 && player.rocks[2] == 1) {
+                    maps[currentMap].walls[16][6] = EMPTY;
+                }
+                break;
+			
 			case 4:
-				if (maps[currentMap].walls[2][6] == 5) {
-					player.image = 237;
-				}
-				if (maps[currentMap].walls[2][7] == 127) {
-					maps[currentMap].walls[2][8] = 236;
-				}
-				if (maps[currentMap].walls[2][8] == 236 && player.rocks[4] == 1) {
-					maps[currentMap].walls[2][8] = EMPTY;
-				}
-				break;
-			case 5:
-				
-				if (maps[currentMap].walls[2][1] == 5 && maps[currentMap].walls[1][2] == 46) {
-					addAnimation(2, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][1] == 65 && maps[currentMap].walls[1][2] == 6) {
-					addAnimation(2, 1, 6, animations);
-				}
-				
+                //switch character color
+                if (maps[currentMap].walls[14][3] == 35) {
+                    player.image = 227;
+                }
+                
+                //switches that open and close doors
 				if (maps[currentMap].walls[2][4] == 5 && maps[currentMap].walls[1][5] == 46) {
 					addAnimation(5, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][4] == 65 && maps[currentMap].walls[1][5] == 6) {
+				}else if (maps[currentMap].walls[2][4] == 65 && maps[currentMap].walls[1][5] == 6) {
 					addAnimation(5, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][6] == 5 && maps[currentMap].walls[1][7] == 46) {
 					addAnimation(7, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][6] == 65 && maps[currentMap].walls[1][7] == 6) {
+				}else if (maps[currentMap].walls[2][6] == 65 && maps[currentMap].walls[1][7] == 6) {
 					addAnimation(7, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][8] == 5 && maps[currentMap].walls[1][9] == 46) {
 					addAnimation(9, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][8] == 65 && maps[currentMap].walls[1][9] == 6) {
+				}else if (maps[currentMap].walls[2][8] == 65 && maps[currentMap].walls[1][9] == 6) {
 					addAnimation(9, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][10] == 5 && maps[currentMap].walls[1][11] == 46) {
 					addAnimation(11, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][10] == 65 && maps[currentMap].walls[1][11] == 6) {
+				}else if (maps[currentMap].walls[2][10] == 65 && maps[currentMap].walls[1][11] == 6) {
 					addAnimation(11, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][12] == 5 && maps[currentMap].walls[1][13] == 46) {
 					addAnimation(13, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][12] == 65 && maps[currentMap].walls[1][13] == 6) {
+				}else if (maps[currentMap].walls[2][12] == 65 && maps[currentMap].walls[1][13] == 6) {
 					addAnimation(13, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][14] == 5 && maps[currentMap].walls[1][15] == 46) {
 					addAnimation(15, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][14] == 65 && maps[currentMap].walls[1][15] == 6) {
+				}else if (maps[currentMap].walls[2][14] == 65 && maps[currentMap].walls[1][15] == 6) {
 					addAnimation(15, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][16] == 5 && maps[currentMap].walls[1][17] == 46) {
 					addAnimation(17, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][16] == 65 && maps[currentMap].walls[1][17] == 6) {
+				}else if (maps[currentMap].walls[2][16] == 65 && maps[currentMap].walls[1][17] == 6) {
 					addAnimation(17, 1, 6, animations);
 				}
-				
 				if (maps[currentMap].walls[2][18] == 5 && maps[currentMap].walls[1][19] == 46) {
 					addAnimation(19, 1, 46, animations);
-				}
-				if (maps[currentMap].walls[2][18] == 65 && maps[currentMap].walls[1][19] == 6) {
+				}else if (maps[currentMap].walls[2][18] == 65 && maps[currentMap].walls[1][19] == 6) {
 					addAnimation(19, 1, 6, animations);
 				}
-				if (maps[currentMap].walls[14][3] == 5) {
-					player.image = 227;
-				}
+				
+                //drop gem
 				if (maps[currentMap].walls[7][20] == 127) {
 					maps[currentMap].walls[7][21] = 226;
 				}
+                
+                //grab gem
 				if (maps[currentMap].walls[7][21] == 226 && player.rocks[3] == 1) {
 					maps[currentMap].walls[7][21] = EMPTY;
 				}
 				break;
+
+            case 5:
+                //switch character color
+                if (maps[currentMap].walls[2][6] == 5) {
+                    player.image = 237;
+                }
+                
+                //drop gem
+                if (maps[currentMap].walls[2][7] == 127) {
+                    maps[currentMap].walls[2][8] = 236;
+                }
+                
+                //grab gem
+                if (maps[currentMap].walls[2][8] == 236 && player.rocks[4] == 1) {
+                    maps[currentMap].walls[2][8] = EMPTY;
+                }
+                break;
+                
 			default:
 				break;
 		}
@@ -408,21 +494,16 @@ int main(int argc, char* argv[]) {
 		
 		
 		//Draw stuff
-		
 		draw(maps[currentMap], images, rend, tex, player, boxes[currentMap], screen);
 		drawInventory(player, images, rend, tex);
-		if (currentMap == 4) {
+		if (currentMap == 5) {
 			dest.y = SCALE * 4 - screen.y * SCALE - screen.y_module;
 			dest.x = SCALE * 2 - screen.x * SCALE - screen.x_module;
 			SDL_RenderCopy(rend, tex2, NULL, &dest);
 		}
-		
 				
 		//Send the image drawn to the screen
 		SDL_RenderPresent(rend);
-		
-		if (frames == 60)
-			frames = 0;
 		
 		//wait
 		SDL_Delay(ticks_delay);

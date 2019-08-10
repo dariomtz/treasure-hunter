@@ -1,6 +1,8 @@
 # Treasure hunter
 An RPG game developed in C
 
+Thanks to [BUCH](https://opengameart.org/users/buch) for his amazing art [A blocky dungeon](https://opengameart.org/content/a-blocky-dungeon).
+
 ##### Requirements
  * SDL2
  * SDL_image
